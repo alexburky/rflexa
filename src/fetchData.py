@@ -47,6 +47,8 @@ st.remove_response(pre_filt=pre_filt, output="DISP", water_level=70, plot=False,
 st.detrend(type='simple')
 print(st)
 
+tr1 = st[0]
+tr2 = st[1]
 trz = st[2]
 
 # Construct time vector
@@ -58,9 +60,17 @@ bhz = obspy.read('../data/oldsac/2018*sac')
 trz1 = bhz[0]
 tz = np.arange(0, trz1.stats.npts*trz1.stats.delta, trz1.stats.delta)
 
-plt.plot(t, trz.data, 'k', linewidth=0.25)
-plt.plot(tz-0.75, trz1.data, 'r', linewidth=0.25)
-# plt.xlim(350, 700)
+# Plot traces
+f = plt.figure(1, figsize=(12, 10))
+
+p1 = f.add_subplot(311)
+p1.plot(t, trz.data, 'k', linewidth=0.25)
+p1.plot(tz-0.75, trz1.data, 'r', linewidth=0.25)
+p1.set_xlim(350, 700)
+
+# p2 = f.add_subplot(312)
+# p2.plot(t, tr1.data, 'k', linewidth=0.25)
+
 plt.show()
 
 # print(catalog.events[0].origins[0].time)
