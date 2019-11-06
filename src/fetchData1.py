@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 # Define network, station, location, and channel codes to fetch data from
 ntwk = "IU"
-stat = "SFJD"
+stat = "BBSR"
 loc = "00"
 chan = "BH*"
 # Define the client that hosts the desired data
@@ -86,6 +86,14 @@ for i in range(0, nstats):
         # Remove instrument response
         st[j].remove_response(pre_filt=pf, output="DISP", water_level=70, zero_mean=True, taper=True,
                               taper_fraction=0.05)
+        # Prepare filename for saving
+        evchan = st[j].meta.channel
+        evid = st[j].meta.starttime.isoformat().replace('-', '.').replace('T', '.').replace(':', '.').split('.')[:-1]
+        evid.extend([ntwk, stat, loc, evchan, 'sac'])
+        evid = ".".join(evid)
+        # st[j].stats.sac.stla = stla
+        # st[j].stats.sac.stlo = stlo
+        st[j].write("/Users/aburky/PycharmProjects/bermudaRFs/data/bigQuakes/" + evid, format='SAC')
 
 # Plot some data for fun
 plt.plot(st[0].data, 'k', linewidth=0.25)
