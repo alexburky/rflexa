@@ -5,6 +5,8 @@ from obspy.taup import TauPyModel
 import matplotlib
 import numpy as np
 import seisutils as su
+import os
+import shutil
 matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 
@@ -25,6 +27,16 @@ loc = "00"
 chan = "BH*"
 # Define the client that hosts the desired data
 client = Client("IRIS")
+# Define path to directory where seismic data will be saved as SAC files
+sac_dir = "/mnt/usb/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
+if os.path.exists(sac_dir):
+    # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
+    shutil.rmtree(sac_dir)
+    os.makedirs(sac_dir)
+if not os.path.exists(sac_dir):
+    os.makedirs(sac_dir)
+# Define amount of data desired (minutes)
+duration = 60
 
 # Fetch station information for data retrieval
 inv = client.get_stations(network=ntwk, station=stat, loc=loc, channel=chan, level="response")
@@ -73,9 +85,20 @@ for i in range(0, nstats):
     # Fill 'bulk' with desired event information
     for j in range(0, nevents):
         teq = catalog.events[j].origins[0].time
-        bulk.append((ntwk, stat, loc, chan, teq, teq+60*60))
+        bulk.append((ntwk, stat, loc, chan, teq, teq+duration*60))
+    # Check 'bulk' for aftershocks/temporally close events and remove from list
+    aftershocks = []
+    for j in range(len(bulk)):
+        for k in range(j+1, len(bulk)):
+            t1 = bulk[j][4]
+            t2 = bulk[k][4]
+            if t2 <= t1 <= t2+duration*60:
+                print('Removing aftershock from request:', t1, t2)
+                aftershocks.append(j)
+    for j in range(len(aftershocks)):
+        del bulk[aftershocks[j]]
     # Fetch the data!
-    print(bulk)
+    # print(bulk)
     st = client.get_waveforms_bulk(bulk, attach_response=True)
     l = 0
     for j in range(0, len(st)):
@@ -118,7 +141,7 @@ for i in range(0, nstats):
             st[j].stats.sac.t0 = arrivals[0].time
             print(arrivals[0].time, evid, catalog.events[-(l + 1)].origins[0].time, l)
             # Write the trace to a SAC file
-            st[j].write("/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/" + evid, format='SAC')
+            st[j].write(sac_dir + evid, format='SAC')
             l += 1
         else:
             l = 0
@@ -137,7 +160,7 @@ for i in range(0, nstats):
             st[j].stats.sac.t0 = arrivals[0].time
             print(arrivals[0].time, evid, catalog.events[-(l+1)].origins[0].time, l)
             # Write the trace to a SAC file
-            st[j].write("/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/" + evid, format='SAC')
+            st[j].write(sac_dir + evid, format='SAC')
             l += 1
 
 # Plot some data for fun
