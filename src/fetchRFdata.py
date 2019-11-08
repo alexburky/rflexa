@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 # TO DO: Add an 'example' where you fetch a small handful of events and then run them
 # through the entire receiver function analysis for reproducibility and teaching purposes
 # ------------------------------------------------------------------------------------------
-# Last updated 11/05/2019 by aburky@princeton.edu
+# Last updated 11/07/2019 by aburky@princeton.edu
 # ------------------------------------------------------------------------------------------
 
 # Define network, station, location, and channel codes to fetch data from
@@ -122,9 +122,10 @@ for i in range(0, nstats):
         st[j].stats.sac = {}
         st[j].stats.sac.stla = stla
         st[j].stats.sac.stlo = stlo
-
-        # NEED TO ADD A CHECK TO MAKE SURE ALL 3 CHANNELS HAVE DATA!
-
+        # Channel orientation (CMPAZ)
+        azid = [ntwk, stat, loc, evchan]
+        azid = ".".join(azid)
+        st[j].stats.sac.cmpaz = inv.get_orientation(azid, teq)["azimuth"]
         # Add event-specific metadata to SAC files
         nchans = len(st)/3
         if l < nevents:

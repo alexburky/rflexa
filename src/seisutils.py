@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.signal import butter, lfilter
 
 # This file contains various functions which can be used for routine seismic data processing.
 # ---------------------------------------------------------------------------------------------
@@ -88,3 +89,23 @@ def seisne(dat1, dat2, azimuth):
     ndat = rot[0]
     edat = rot[1]
     return ndat, edat
+
+
+def bp_butter(data, lowcut, highcut, fs, order=5):
+    """
+    Bandpass filter an array using a Butterworth filter, default order is 5.
+
+    :param data: Array data to be filtered
+    :param lowcut: Low corner frequency (Hz)
+    :param highcut: High corner frequency (Hz)
+    :param fs: Sample rate of data
+    :param order: Order of filter. Default is 5
+
+    :return: y: Array containing filtered input data
+    """
+    nyq = 0.5*fs
+    low = lowcut/nyq
+    high = highcut/nyq
+    b, a = butter(order, [low, high], btype='band')
+    y = lfilter(b, a, data, axis=0)
+    return y
