@@ -1,5 +1,6 @@
 import numpy as np
-from scipy import fftpack
+import scipy
+from scipy import fftpack, signal, integrate
 
 # This file contains all of the functions necessary to perform iterative time-domain deconvolution
 # as outlined in Ligorria & Ammon 1999.
@@ -179,3 +180,43 @@ def iterdecon(num, den, dt, nt, tshift, f0, itmax, errtol):
     rms = rms[0:it]
 
     return rfi, rms
+
+
+def rf_quality(rfdata, delta, f0, tshift=0):
+    """
+    Calculate receiver function quality metric using the algorithm outlined in Burky et al. 2019
+
+    :param rfdata: Array containing receiver function data
+    :param delta: Sampling interval of receiver function data
+    :param f0: Gaussian width factor used in iterative time domain deconvolution
+    :param tshift: Time shift of receiver function in seconds (DEFAULT = 0)
+
+    :return: quality: Float in [0, 1] representing the quality of receiver function data
+    """
+    # OLD METHOD
+    # Take derivative of data
+    # drf = np.diff(rfdata/delta)
+    # pks = scipy.signal.find_peaks(rfdata[0:eidx], height=0)
+    # Use start of receiver function (index 0) instead of finding idx1
+
+    # NEW METHOD
+    # Find largest peak in window from start time to time-shift plus 3 standard deviations
+    eidx = int(round((tshift+(3/f0))/delta))
+    # Integral of initial gaussian pulse (P arrival)
+    p_int = scipy.integrate.trapz(np.abs(rfdata[0:eidx]), dx=delta)
+    # Integral of entire receiver function
+    rf_int = scipy.integrate.trapz(np.abs(rfdata), dx=delta)
+    # Ratio of integrals
+    quality = p_int/rf_int
+    # Check for negative first impulse
+    p_sign = scipy.integrate.trapz(rfdata[0:eidx], dx=delta)
+    if p_sign < 0:
+        quality = -1*quality
+    return quality
+
+    # Question: Should integration limits be determined by gaussian width factor, or by method laid
+    # out in MATLAB code already written?
+    # - 3 standard deviations to the right and left of the time shift should capture the first "pulse"
+    # - Try both and see which performs better?
+    # - 3 standard deviations 'seems' like a more objective choice, less prone to errors...
+

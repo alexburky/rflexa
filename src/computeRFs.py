@@ -3,18 +3,25 @@ import seisutils as su
 import iterdecon as rfunc
 import numpy as np
 import matplotlib
+import os
+import shutil
 from scipy import signal
 matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 
+# Define network, station and location
+ntwk = "IU"
+stat = "BBSR"
+loc = "00"
+
 sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
-# rf_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfuncs/"
-# if os.path.exists(rf_dir):
+rf_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfuncs/"
+if os.path.exists(rf_dir):
     # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
-#    shutil.rmtree(rf_dir)
-#    os.makedirs(rf_dir)
-# if not os.path.exists(rf_dir):
-#    os.makedirs(rf_dir)
+    shutil.rmtree(rf_dir)
+    os.makedirs(rf_dir)
+if not os.path.exists(rf_dir):
+    os.makedirs(rf_dir)
 
 st = obspy.read(sac_dir + "*.sac")
 show_traces = 0
@@ -76,25 +83,46 @@ tol = 0.001
 rad_idx = np.arange(0, len(st), 3)
 rf = []
 rms = []
-# rfstream = obspy.Stream()
 for i in range(0, len(rad_idx)):
     rf.append(i)
     rms.append(i)
     [rf[i], rms[i]] = rfunc.iterdecon(st[rad_idx[i]].data, st[(rad_idx[i]+2)].data, st[rad_idx[i]].meta.delta,
                                       len(st[rad_idx[i]].data), tshift, gw, itmax, tol)
-    # rfstream[i] = obspy.Stream(obspy.Trace(rf[i]))
 
 # Write receiver functions to obspy stream/trace objects
 rfstream = obspy.Stream(traces=rf[:])
+qc = []
+fit = []
 for i in range(0, len(rfstream)):
+    ch1 = i*3
     rfstream[i] = obspy.Trace(rf[i])
-#    rfstream[i].stats.sac = {}
+    rfstream[i].stats = st[ch1].stats
+    rfstream[i].stats.sac.b = 0
+    # Save RMS error to 'USER0' header
+    fit.append(i)
+    fit[i] = 100*(1 - rms[i][-1])
+    rfstream[i].stats.sac.user0 = fit[i]
+    # Format filename
+    evid = st[ch1].stats.starttime.isoformat().replace('-', '.').replace('T', '.').replace(':', '.').split('.')
+    evid.extend([ntwk, stat, loc, 'RF', 'sac'])
+    evid = ".".join(evid)
+    # Calculate quality ratio and save to 'USER1' header
+    qc.append(i)
+    qc[i] = rfunc.rf_quality(rf[i], st[ch1].meta.delta, gw, tshift=tshift)
+    rfstream[i].stats.sac.user1 = qc[i]
+    # Write to SAC files
+    rfstream[i].write(rf_dir + evid, format='SAC')
 
-if show_traces == 1:
-    for i in range(0, len(rf)):
-        plt.ion()
-        plt.plot(rf[i], 'k', linewidth=0.5)
-        plt.ylim(-0.5, 1.0)
-        plt.show(block=False)
-        plt.pause(0.5)
-        plt.cla()
+# Make scatter plot showing statistics
+# plt.scatter(fit, qc)
+# plt.show()
+
+# for i in range(0, len(rf)):
+#     if rfstream[i].stats.sac.user1 > 0.35:
+#         plt.ion()
+#         plt.plot(rf[i], 'k', linewidth=0.5)
+#         plt.title(evid + ' Quality: ' + str(rfstream[i].stats.sac.user0))
+#         plt.ylim(-0.5, 1.0)
+#         plt.show(block=False)
+#         plt.pause(0.5)
+#         plt.cla()
