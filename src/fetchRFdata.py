@@ -1,14 +1,10 @@
-import obspy
 from obspy import UTCDateTime
 from obspy.clients.fdsn import Client
 from obspy.taup import TauPyModel
-import matplotlib
 import numpy as np
 import seisutils as su
 import os
 import shutil
-matplotlib.use('Qt4Agg')
-import matplotlib.pyplot as plt
 
 # ------------------------------------------------------------------------------------------
 # fetchData.py
@@ -17,7 +13,7 @@ import matplotlib.pyplot as plt
 # TO DO: Add an 'example' where you fetch a small handful of events and then run them
 # through the entire receiver function analysis for reproducibility and teaching purposes
 # ------------------------------------------------------------------------------------------
-# Last updated 11/07/2019 by aburky@princeton.edu
+# Last updated 11/11/2019 by aburky@princeton.edu
 # ------------------------------------------------------------------------------------------
 
 # Define network, station, location, and channel codes to fetch data from
@@ -28,7 +24,7 @@ chan = "BH*"
 # Define the client that hosts the desired data
 client = Client("IRIS")
 # Define path to directory where seismic data will be saved as SAC files
-sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
+# sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
 # sac_dir = "/mnt/usb/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
 if os.path.exists(sac_dir):
     # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
@@ -87,22 +83,9 @@ for i in range(0, nstats):
     for j in range(0, nevents):
         teq = catalog.events[j].origins[0].time
         bulk.append((ntwk, stat, loc, chan, teq, teq+duration*60))
-    # Check 'bulk' for aftershocks/temporally close events and remove from list
-    aftershocks = []
-    for j in range(len(bulk)):
-        for k in range(j+1, len(bulk)):
-            t1 = bulk[j][4]
-            t2 = bulk[k][4]
-            if t2 <= t1 <= t2+duration*60:
-                print('Removing aftershock from request:', t1, t2)
-                aftershocks.append(j)
-    for j in range(len(aftershocks)):
-        del bulk[aftershocks[j]]
-        del catalog.events[aftershocks[j]]
-    nevents = len(catalog.events)
     # Fetch the data!
     st = client.get_waveforms_bulk(bulk, attach_response=True)
-    l = 0
+    # Do some minor pre-processing and file-formatting
     for j in range(0, len(st)):
         teq = st[j].meta.starttime
         # Check which instrument response to use for given event
@@ -127,45 +110,26 @@ for i in range(0, nstats):
         azid = ".".join(azid)
         st[j].stats.sac.cmpaz = inv.get_orientation(azid, teq)["azimuth"]
         # Add event-specific metadata to SAC files
-        nchans = len(st)/3
-        if l < nevents:
-            st[j].stats.sac.evla = catalog.events[-(l+1)].origins[0].latitude
-            st[j].stats.sac.evlo = catalog.events[-(l+1)].origins[0].longitude
-            st[j].stats.sac.evdp = catalog.events[-(l+1)].origins[0].depth
-            # Calculate great circle distance and back-azimuth
-            gcarc, baz = su.haversine(stla, stlo, st[j].stats.sac.evla, st[j].stats.sac.evlo)
-            st[j].stats.sac.gcarc = gcarc
-            st[j].stats.sac.baz = baz
-            # Get theoretical P arrival time, and assign to header 'T0'
-            model = TauPyModel(model="iasp91")
-            phases = ["P"]
-            arrivals = model.get_travel_times(source_depth_in_km=st[j].stats.sac.evdp/1000.0, distance_in_degree=gcarc,
-                                              phase_list=phases)
-            st[j].stats.sac.t0 = arrivals[0].time
-            print(arrivals[0].time, evid, catalog.events[-(l + 1)].origins[0].time, l)
-            # Write the trace to a SAC file
-            st[j].write(sac_dir + evid, format='SAC')
-            l += 1
-        else:
-            l = 0
-            st[j].stats.sac.evla = catalog.events[-(l+1)].origins[0].latitude
-            st[j].stats.sac.evlo = catalog.events[-(l+1)].origins[0].longitude
-            st[j].stats.sac.evdp = catalog.events[-(l+1)].origins[0].depth
-            # Calculate great circle distance and back-azimuth
-            gcarc, baz = su.haversine(stla, stlo, st[j].stats.sac.evla, st[j].stats.sac.evlo)
-            st[j].stats.sac.gcarc = gcarc
-            st[j].stats.sac.baz = baz
-            # Get theoretical P arrival time, and assign to header 'T0'
-            model = TauPyModel(model="iasp91")
-            phases = ["P"]
-            arrivals = model.get_travel_times(source_depth_in_km=st[j].stats.sac.evdp/1000.0, distance_in_degree=gcarc,
-                                              phase_list=phases)
-            st[j].stats.sac.t0 = arrivals[0].time
-            print(arrivals[0].time, evid, catalog.events[-(l+1)].origins[0].time, l)
-            # Write the trace to a SAC file
-            st[j].write(sac_dir + evid, format='SAC')
-            l += 1
+        for k in range(0, nevents):
+            if catalog.events[k].origins[0].time - 5 <= st[j].meta.starttime <= catalog.events[k].origins[0].time + 5:
+                print('Match!', catalog.events[k].origins[0].time, st[j].meta.starttime)
+                st[j].stats.sac.evla = catalog.events[k].origins[0].latitude
+                st[j].stats.sac.evlo = catalog.events[k].origins[0].longitude
+                st[j].stats.sac.evdp = catalog.events[k].origins[0].depth
+                st[j].stats.sac.mag = catalog.events[k].magnitudes[0].mag
+                # Calculate great circle distance and back-azimuth
+                gcarc, baz = su.haversine(stla, stlo, st[j].stats.sac.evla, st[j].stats.sac.evlo)
+                st[j].stats.sac.gcarc = gcarc
+                st[j].stats.sac.baz = baz
+                # Get theoretical P arrival time, and assign to header 'T0'
+                model = TauPyModel(model="iasp91")
+                phases = ["P"]
+                arrivals = model.get_travel_times(source_depth_in_km=st[j].stats.sac.evdp/1000.0,
+                                                  distance_in_degree=gcarc, phase_list=phases)
+                st[j].stats.sac.t0 = arrivals[0].time
+                st[j].stats.sac.user9 = arrivals[0].ray_param*(np.pi/180)
+                print(arrivals[0].time, evid, catalog.events[k].origins[0].time)
+                # Write the trace to a SAC file
+                st[j].write(sac_dir + evid, format='SAC')
 
-# Plot some data for fun
-plt.plot(st[0].data, 'k', linewidth=0.25)
-plt.show()
+print('Data fetching complete!')
