@@ -117,7 +117,7 @@ def iterdecon(num, den, dt, nt, tshift, f0, itmax, errtol):
                        RMS error from each iteration.
     """
     # Initiate iterative deconvolution
-    rms = np.zeros(itmax)
+    rms = np.zeros(itmax+1)
     nfft = next_power_2(nt)
     p0 = np.zeros(nfft)
 

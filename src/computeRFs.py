@@ -14,8 +14,10 @@ ntwk = "IU"
 stat = "BBSR"
 loc = "00"
 
-sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
-rf_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfuncs/"
+# sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
+sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/IU_BBSR/RFQUAKES/"
+# rf_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfuncs/"
+rf_dir = "/mnt/usb/aburky/IFILES/STATIONS/IU_BBSR/RFUNCS/GW07/"
 if os.path.exists(rf_dir):
     # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
     shutil.rmtree(rf_dir)
@@ -46,8 +48,17 @@ show_traces = 0
 ch1 = np.arange(0, len(st), 3)
 for i in range(0, len(ch1)):
     ch2 = ch1[i] + 1
-    st[ch1[i]].data, st[ch2].data = su.seisne(st[ch1[i]].data, st[ch2].data, st[ch1[i]].meta.sac.cmpaz)
-    st[ch1[i]].data, st[ch2].data = su.seisrt(st[ch1[i]].data, st[ch2].data, st[ch1[i]].meta.sac.baz)
+    # Check if length of traces is equal!
+    if st[ch1[i]].meta.npts != st[ch2].meta.npts:
+        npmin = np.min([st[ch1[i]].meta.npts, st[ch2].meta.npts])
+        st[ch1[i]].data = st[ch1[i]].data[0:npmin]
+        st[ch2].data = st[ch2].data[0:npmin]
+    # st[ch1[i]].data, st[ch2].data = su.seisne(st[ch1[i]].data, st[ch2].data, st[ch1[i]].meta.sac.cmpaz)
+    st[ch1[i]].data, st[ch2].data = su.seisne(st[ch1[i]].data.astype(float), st[ch2].data.astype(float),
+                                              st[ch1[i]].meta.sac.cmpaz)
+    # st[ch1[i]].data, st[ch2].data = su.seisrt(st[ch1[i]].data, st[ch2].data, st[ch1[i]].meta.sac.baz)
+    st[ch1[i]].data, st[ch2].data = su.seisrt(st[ch1[i]].data.astype(float), st[ch2].data.astype(float),
+                                              st[ch1[i]].meta.sac.baz)
     if show_traces == 1:
         plt.ion()
         plt.plot(st[ch1[i]].data, 'k', linewidth=0.25)
@@ -113,6 +124,7 @@ for i in range(0, len(rfstream)):
     # Write to SAC files
     rfstream[i].write(rf_dir + evid, format='SAC')
 
+print('Receiver function computation complete!')
 # Make scatter plot showing statistics
 # plt.scatter(fit, qc)
 # plt.show()
