@@ -17,15 +17,15 @@ import shutil
 # ------------------------------------------------------------------------------------------
 
 # Define network, station, location, and channel codes to fetch data from
-ntwk = "IU"
-stat = "BBSR"
+ntwk = "IC"
+stat = "HIA"
 loc = "00"
 chan = "BH*"
 # Define the client that hosts the desired data
 client = Client("IRIS")
 # Define path to directory where seismic data will be saved as SAC files
 # sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
-sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/IU_BBSR/RFQUAKES/"
+sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFQUAKES/"
 if os.path.exists(sac_dir):
     # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
     shutil.rmtree(sac_dir)
@@ -74,7 +74,7 @@ for i in range(0, nstats):
     stla = inv.networks[0].stations[i].latitude
     stlo = inv.networks[0].stations[i].longitude
     # Fetch relevant events in time-window during which station was operational
-    catalog = client.get_events(starttime=t0, endtime=tf, minmagnitude=5.5, maxmagnitude=7.5, latitude=stla,
+    catalog = client.get_events(starttime=t0, endtime=tf, minmagnitude=6.0, maxmagnitude=7.0, latitude=stla,
                                 longitude=stlo, minradius=30, maxradius=90)
     nevents = len(catalog.events)
     # Initialize list of events used for bulk request
@@ -114,9 +114,21 @@ for i in range(0, nstats):
             if catalog.events[k].origins[0].time - 5 <= st[j].meta.starttime <= catalog.events[k].origins[0].time + 5:
                 print('Match!', catalog.events[k].origins[0].time, st[j].meta.starttime)
                 st[j].stats.sac.evla = catalog.events[k].origins[0].latitude
+                if st[j].stats.sac.evla is None:
+                    print('Couldn''t find event latitude, setting to zero.')
+                    st[j].stats.sac.evla = 0.0
                 st[j].stats.sac.evlo = catalog.events[k].origins[0].longitude
+                if st[j].stats.sac.evlo is None:
+                    print('Couldn''t find event longitude, setting to zero.')
+                    st[j].stats.sac.evlo = 0.0
                 st[j].stats.sac.evdp = catalog.events[k].origins[0].depth
+                if st[j].stats.sac.evdp is None:
+                    print('Couldn''t find event depth, setting to zero.')
+                    st[j].stats.sac.evdp = 0.0
                 st[j].stats.sac.mag = catalog.events[k].magnitudes[0].mag
+                if st[j].stats.sac.mag is None:
+                    print('Couldn''t find event magnitude, setting to zero.')
+                    st[j].stats.sac.mag = 0.0
                 # Calculate great circle distance and back-azimuth
                 gcarc, baz = su.haversine(stla, stlo, st[j].stats.sac.evla, st[j].stats.sac.evlo)
                 st[j].stats.sac.gcarc = gcarc

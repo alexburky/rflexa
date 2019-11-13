@@ -10,18 +10,26 @@ matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 
 # Define network, station and location
-ntwk = "IU"
-stat = "BBSR"
+ntwk = "II"
+stat = "ARU"
 loc = "00"
+gw = 1.0
 
 # sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
-sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/IU_BBSR/RFQUAKES/"
+sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFQUAKES/"
 # rf_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfuncs/"
-rf_dir = "/mnt/usb/aburky/IFILES/STATIONS/IU_BBSR/RFUNCS/GW07/"
+rf_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFUNCS/GW" + ''.join(str(gw).split('.')) + "/"
 if os.path.exists(rf_dir):
-    # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
-    shutil.rmtree(rf_dir)
-    os.makedirs(rf_dir)
+    response = raw_input("Receiver function directory exists. Overwrite? [y/n]:")
+    if response == "y":
+        shutil.rmtree(rf_dir)
+        os.makedirs(rf_dir)
+    elif response == "n":
+        print('Terminating process...')
+        quit()
+    else:
+        print('Invalid response! Terminating process...')
+        quit()
 if not os.path.exists(rf_dir):
     os.makedirs(rf_dir)
 
@@ -87,7 +95,6 @@ for i in range(0, len(st)):
 
 # Set deconvolution parameters
 tshift = 10
-gw = 0.7
 itmax = 1000
 tol = 0.001
 # Deconvolve!
