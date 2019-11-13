@@ -2,6 +2,7 @@ import numpy as np
 import obspy
 from obspy.taup import TauPyModel
 from scipy import signal
+import os
 import matplotlib
 from matplotlib import rc
 matplotlib.use('Qt4Agg')
@@ -14,15 +15,23 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------------------------
 
 # Read in receiver function data
-ntwk = "II"
-stat = "ARU"
+data_directory = "/Users/aburky/IFILES/NETWORKS/"
+ntwk = "IU"
+stat = "PTCN"
 gw = 1.0
 # Undo time-shift if it existed
 tshift = 10
 
-# rf_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfuncs/"
-rf_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFUNCS/GW" + ''.join(str(gw).split('.')) + "/"
+# Construct path to receiver funcitons
+rf_dir = data_directory + ntwk + "/" + stat + "/RFUNCS/GW" + ''.join(str(gw).split('.')) + "/"
 rfs = obspy.read(rf_dir + '*.sac')
+# Construct path to figure
+fig_dir = data_directory + ntwk + "/" + stat + "/GRAPHICS/"
+fig_name = ntwk + "." + stat + ".GW" + ''.join(str(gw).split('.')) + ".eps"
+
+# Make sure figure directory exists
+if not os.path.exists(fig_dir):
+    os.makedirs(fig_dir)
 
 # Set matplotlib to use LaTeX fonts
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
@@ -134,6 +143,8 @@ if rot == 0:
     plt.xlim(0, (npmax*dt)-tshift)
     plt.xlabel('Time Relative to P Arrival (s)')
     plt.ylabel('Epicentral Distance $(^{\circ})$')
+    plt.title("Receiver Function Data for {}.{}".format(ntwk, stat))
+    plt.savefig(fig_dir + fig_name)
     plt.show()
 else:
     for i in range(0, len(rf_bin)):
