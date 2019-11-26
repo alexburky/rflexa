@@ -18,7 +18,7 @@ import shutil
 
 
 # Make the whole thing a function!
-def fetchRFdata(network, station, location, channel, data_directory, minimum_magnitude=7.0, maximum_magnitude=7.2):
+def fetchRFdata(network, station, location, channel, data_directory, minimum_magnitude=6.0, maximum_magnitude=7.0):
     # Define network, station, location, and channel codes to fetch data from
     ntwk = network
     stat = station
@@ -29,7 +29,7 @@ def fetchRFdata(network, station, location, channel, data_directory, minimum_mag
     # Define path to directory where seismic data will be saved as SAC files
     # sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
     # sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFQUAKES/"
-    sac_dir = data_directory + ntwk + "/" + stat + "/RFQUAKES/"
+    sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
     if os.path.exists(sac_dir):
         # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
         print('Data directory exists. Terminating fetch request...')

@@ -20,13 +20,13 @@ ntwk = "IU"
 stat = "BBSR"
 loc = "00"
 gw = 1.0
-qc = 0.3
+qc = 0.2
 fit = 80
 # Undo time-shift if it existed
 tshift = 10
 
 # Construct path to receiver funcitons
-rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/GW" + ''.join(str(gw).split('.')) + "/"
+rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + ''.join(str(gw).split('.')) + "/"
 rfs = obspy.read(rf_dir + '*.sac')
 # Construct path to figure
 fig_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/GRAPHICS/"
@@ -93,7 +93,8 @@ x = np.arange(0, 801, 1)
 plt.plot(x, ags[0]/len(rfs), 'k', linewidth=0.25)
 plt.fill_between(x, 0, ags[0]/len(rfs), where=ags[0]/len(rfs) > 0, facecolor='red')
 plt.xlim(200, 800)
-plt.ylim(-0.05, 0.05)
+plt.ylim(-0.01, 0.01)
 plt.xlabel('Depth (km)')
 plt.ylabel('Amplitude (relative to P)')
+plt.title(str(j))
 plt.show()

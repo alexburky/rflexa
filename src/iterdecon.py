@@ -201,9 +201,14 @@ def rf_quality(rfdata, delta, f0, tshift=0):
 
     # NEW METHOD
     # Find largest peak in window from start time to time-shift plus 3 standard deviations
-    eidx = int(round((tshift+(3/f0))/delta))
-    # Integral of initial gaussian pulse (P arrival)
-    p_int = scipy.integrate.trapz(np.abs(rfdata[0:eidx]), dx=delta)
+    if tshift != 0:
+        bidx = int(round((tshift-(3/f0))/delta))
+        eidx = int(round((tshift+(3/f0))/delta))
+        p_int = scipy.integrate.trapz(np.abs(rfdata[bidx:eidx]), dx=delta)
+    else:
+        eidx = int(round((tshift+(3/f0))/delta))
+        # Integral of initial gaussian pulse (P arrival)
+        p_int = scipy.integrate.trapz(np.abs(rfdata[0:eidx]), dx=delta)
     # Integral of entire receiver function
     rf_int = scipy.integrate.trapz(np.abs(rfdata), dx=delta)
     # Ratio of integrals

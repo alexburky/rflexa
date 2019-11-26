@@ -15,19 +15,25 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------------------------
 
 # Read in receiver function data
-data_directory = "/Users/aburky/IFILES/NETWORKS/"
+data_directory = "/mnt/usb/aburky/IFILES/NETWORKS/"
 ntwk = "IU"
-stat = "PTCN"
-gw = 1.0
+stat = "BBSR"
+loc = "00"
+gw = 2.5
+qc = 0.075
+fit = 80
 # Undo time-shift if it existed
 tshift = 10
 
 # Construct path to receiver funcitons
-rf_dir = data_directory + ntwk + "/" + stat + "/RFUNCS/GW" + ''.join(str(gw).split('.')) + "/"
+# rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + ''.join(str(gw).split('.')) + "/"
+rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/FILTERED_0.1_1/GW" + \
+         ''.join(str(gw).split('.')) + "/"
 rfs = obspy.read(rf_dir + '*.sac')
 # Construct path to figure
-fig_dir = data_directory + ntwk + "/" + stat + "/GRAPHICS/"
-fig_name = ntwk + "." + stat + ".GW" + ''.join(str(gw).split('.')) + ".eps"
+# fig_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/GRAPHICS/UNFILTERED/"
+fig_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/GRAPHICS/FILTERED_0.1_1/"
+fig_name = ntwk + "." + stat + ".GW" + ''.join(str(gw).split('.')) + ".QC." + str(qc) + ".FIT." + str(fit) + ".eps"
 
 # Make sure figure directory exists
 if not os.path.exists(fig_dir):
@@ -64,7 +70,7 @@ for i in range(0, len(bad)):
 
 j = 0
 for i in range(0, len(rfs)):
-    if rfs[i].stats.sac.user1 > 0.35:
+    if rfs[i].stats.sac.user1 > qc and rfs[i].stats.sac.user0 > fit:
         gcarcs.append(j)
         gcarcs[j] = [rfs[i].stats.sac.gcarc, i]
         j += 1
@@ -136,14 +142,16 @@ if rot == 0:
         # for i, rf_b in enumerate(rf_bin[::-1]):
         plt.plot(x, rf_bin[i][0], 'k', linewidth=0.5)
         plt.fill_between(x, bins[i], rf_bin[i][0], where=rf_bin[i][0] > bins[i], facecolor='red')
+        plt.fill_between(x, bins[i], rf_bin[i][0], where=rf_bin[i][0] < bins[i], facecolor='blue')
     # Add travel time curves
     plt.plot(p410s, ttbins, 'k', linewidth=1)
     plt.plot(p660s, ttbins, 'k', linewidth=1)
     plt.ylim(29, 93)
-    plt.xlim(0, (npmax*dt)-tshift)
+    # plt.xlim(0, (npmax*dt)-tshift)
+    plt.xlim(0, 20)
     plt.xlabel('Time Relative to P Arrival (s)')
     plt.ylabel('Epicentral Distance $(^{\circ})$')
-    plt.title("Receiver Function Data for {}.{}".format(ntwk, stat))
+    plt.title("Receiver Function Data for {}.{}: {} Traces".format(ntwk, stat, len(gcarcs)))
     plt.savefig(fig_dir + fig_name)
     plt.show()
 else:

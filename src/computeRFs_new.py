@@ -10,7 +10,7 @@ matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 
 
-def computeRFs(network, station, location, data_directory, gaussian_width=1.0):
+def computeRFs(network, station, location, data_directory, gaussian_width=1.0, low_cut=0, high_cut=0):
     # Define network, station and location
     ntwk = network
     stat = station
@@ -18,8 +18,13 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0):
     gw = gaussian_width
 
     show_traces = 0
-    sac_dir = data_directory + ntwk + "/" + stat + "/RFQUAKES/"
-    rf_dir = data_directory + ntwk + "/" + stat + "/RFUNCS/GW" + ''.join(str(gw).split('.')) + "/"
+    sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
+    if low_cut != 0 and high_cut != 0:
+        rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/FILTERED_" + str(low_cut) + "_" + \
+                 str(high_cut) + "/GW" + ''.join(str(gw).split('.')) + "/"
+    else:
+        rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + \
+                 ''.join(str(gw).split('.')) + "/"
 
     if os.path.exists(rf_dir):
         print('Receiver function directory exists! Terminating process...')
@@ -30,19 +35,20 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0):
     st = obspy.read(sac_dir + "*.sac")
 
     # Filter data
-    for i in range(0, len(st)):
-        # Test with rounded vs. un-rounded data
-        fs = 1/st[i].meta.sac.delta
-        lo = 0.034
-        hi = 0.1
-        st[i].data = su.bp_butter(st[i].data, lo, hi, fs, 3)
-        if show_traces == 1:
-            plt.ion()
-            plt.plot(st[i].data, 'k', linewidth=0.25)
-            plt.title(st[i].meta.starttime)
-            plt.show(block=False)
-            plt.pause(0.05)
-            plt.cla()
+    if low_cut != 0 and high_cut != 0:
+        for i in range(0, len(st)):
+            # Test with rounded vs. un-rounded data
+            fs = 1/st[i].meta.sac.delta
+            lo = low_cut
+            hi = high_cut
+            st[i].data = su.bp_butter(st[i].data, lo, hi, fs, 3)
+        # if show_traces == 1:
+        #     plt.ion()
+        #     plt.plot(st[i].data, 'k', linewidth=0.25)
+        #     plt.title(st[i].meta.starttime)
+        #     plt.show(block=False)
+        #     plt.pause(0.05)
+        #     plt.cla()
 
     # Rotate data
     for i in range(0, len(st)):
