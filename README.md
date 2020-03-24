@@ -19,9 +19,10 @@ As stated in the introduction, rflexa is Python based. This guide is not intende
 
 rflexa is built on top of the [ObsPy](https://github.com/obspy/obspy/wiki/Installation-via-Anaconda) package, and requires that you have ObsPy installed in order to run properly. If you already have ObsPy installed, you can continue to the [next section](#Downloading-Earthquake-Data).
 
-
 ## Downloading Earthquake Data
-This is a placeholder.
+The first step in the teleseismic receiver function workflow is to acquire earthquake data recorded at a seismometer somewhere in the world (or nowadays even on other worlds, like [Mars!](https://www.hou.usra.edu/meetings/lpsc2020/pdf/1914.pdf)). 
+
+Illustrate the workflow using the receiver function from the event shown in Figure 2 of the paper.
 
 ## Data Pre-Processing
 This is a placeholder.
