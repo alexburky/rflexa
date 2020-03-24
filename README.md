@@ -1,3 +1,3 @@
-# bermudaRFs
+# rflexa
 
-Package to calculate receiver functions for GSN Station BBSR.
+rflexa is a complete receiver function workflow tool, with the purpose of assisting the seismic analyst *from station to subsurface*.
