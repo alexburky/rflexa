@@ -4,8 +4,11 @@ rflexa is a complete, Python based, receiver function workflow tool, with the pu
 
 ### Contents
 [Downloading Earthquake Data](#DownloadingEarthquakeData)
+
 [Data Pre-Processing](#DataPre-Processing)
+
 [Deconvolution](#Deconvolution)
+
 [Receiver Function Analysis](#ReceiverFunctionAnalysis)
 
 ## Downloading Earthquake Data
