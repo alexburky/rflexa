@@ -6,7 +6,8 @@ import matplotlib
 import os
 import shutil
 from scipy import signal
-matplotlib.use('Qt4Agg')
+# matplotlib.use('Qt4Agg')
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
