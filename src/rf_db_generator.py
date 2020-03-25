@@ -6,7 +6,7 @@ client = Client("IRIS")
 network = "IU"
 location = "00"
 channel = "BH*"
-data_directory = "/mnt/usb/aburky/IFILES/NETWORKS/"
+data_directory = "/Users/aburky/IFILES/NETWORKS/"
 
 # inv = client.get_stations(network=network)
 
@@ -16,8 +16,8 @@ data_directory = "/mnt/usb/aburky/IFILES/NETWORKS/"
 station = "BBSR"
 #fetchRFdata(network=network, station=station, location=location, channel=channel, data_directory=data_directory,
 #            minimum_magnitude=5.5, maximum_magnitude=8.0)
-computeRFs(network=network, station=station, location=location, data_directory=data_directory, gaussian_width=1.0,
-           low_cut=0.1, high_cut=1)
+computeRFs(network=network, station=station, location=location, data_directory=data_directory, gaussian_width=0.8,
+           low_cut=0.02, high_cut=5)
 #    except:
 #        print('Data retrieval failed, do some debugging!')
 
