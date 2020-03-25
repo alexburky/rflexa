@@ -1,5 +1,7 @@
 # rflexa
 
+(Warning: this page is still under construction!)
+
 rflexa is a complete, Python based, receiver function workflow tool, with the purpose of assisting the observational seismologist *from station to subsurface*. Although initially built for receiver function analysis, the individual modules can be extracted for use and integrated into your existing workflow.
 
 ### Contents
