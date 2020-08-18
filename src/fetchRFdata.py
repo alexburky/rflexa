@@ -12,24 +12,33 @@ import shutil
 # and saves the data into .sac files.
 # TO DO: Add an 'example' where you fetch a small handful of events and then run them
 # through the entire receiver function analysis for reproducibility and teaching purposes
+#
+# - Add an option that allows the user to not remove the instrument response
+#
 # ------------------------------------------------------------------------------------------
-# Last updated 11/11/2019 by aburky@princeton.edu
+# Last updated 8/18/2020 by aburky@princeton.edu
 # ------------------------------------------------------------------------------------------
 
 
 # Make the whole thing a function!
-def fetchRFdata(network, station, location, channel, data_directory, minimum_magnitude=6.0, maximum_magnitude=7.0):
+def fetchRFdata(network, station, location, channel, data_directory, minimum_magnitude=6.9, maximum_magnitude=7.0,
+                remove_response=True):
     # Define network, station, location, and channel codes to fetch data from
     ntwk = network
     stat = station
     loc = location
     chan = channel
+
     # Define the client that hosts the desired data
     client = Client("IRIS")
     # Define path to directory where seismic data will be saved as SAC files
-    # sac_dir = "/Users/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
     # sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFQUAKES/"
-    sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
+    if remove_response:
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
+    else:
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_COUNTS/"
+
+    # sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
     if os.path.exists(sac_dir):
         # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
         print('Data directory exists. Terminating fetch request...')
@@ -42,13 +51,17 @@ def fetchRFdata(network, station, location, channel, data_directory, minimum_mag
     duration = 60
 
     # Fetch station information for data retrieval
-    inv = client.get_stations(network=ntwk, station=stat, loc=loc, channel=chan, level="response")
+    if loc == "":
+        inv = client.get_stations(network=ntwk, station=stat, channel=chan, level="response")
+    else:
+        inv = client.get_stations(network=ntwk, station=stat, loc=loc, channel=chan, level="response")
+
     nstats = len(inv.networks[0])
     resp_t0 = []
     resp_tf = []
     pre_filt = []
     for i in range(0, nstats):
-        nresp = len(inv.networks[0].stations[i].channels)/3
+        nresp = int(len(inv.networks[0].stations[i].channels)/3)
         for j in range(0, nresp):
             # Start time of station operation for given channels
             resp_t0.append(inv.networks[0].stations[i].channels[j].start_date)
@@ -99,10 +112,10 @@ def fetchRFdata(network, station, location, channel, data_directory, minimum_mag
             for k in range(0, len(resp_t0)):
                 if resp_t0[k] <= teq <= resp_tf[k]:
                     pf = pre_filt[k]
-                    # print("Filter using:", pf)
             # Remove instrument response
-            st[j].remove_response(pre_filt=pf, output="DISP", water_level=70, zero_mean=True, taper=True,
-                                  taper_fraction=0.05)
+            if remove_response:
+                st[j].remove_response(pre_filt=pf, output="DISP", water_level=70, zero_mean=True, taper=True,
+                                      taper_fraction=0.05)
             # Prepare filename for saving
             evchan = st[j].meta.channel
             evid = st[j].meta.starttime.isoformat().replace('-', '.').replace('T', '.').replace(':', '.').split('.')[:-1]

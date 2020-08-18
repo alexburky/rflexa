@@ -2,16 +2,27 @@ import obspy
 import seisutils as su
 import iterdecon as rfunc
 import numpy as np
-import matplotlib
 import os
-import shutil
 from scipy import signal
-# matplotlib.use('Qt4Agg')
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
+
+# ------------------------------------------------------------------------------------------
+# computeRFs.py
+# This function calculates receiver functions and saves the results to a directory upon
+# completion. The user can specify a choice of filter and Gaussian width factors for use
+# in the data processing. The resulting SAC files are saved with additional metadata in the
+# header:
+#
+# USER0: Vertical component SNR
+# USER1: Radial component SNR
+# USER2: RMS error calculated from iterative time domain deconvolution
+# USER3: Quality metric, nu
+#
+# ------------------------------------------------------------------------------------------
+# Last updated 8/18/2020 by aburky@princeton.edu
+# ------------------------------------------------------------------------------------------
 
 
-def computeRFs(network, station, location, data_directory, gaussian_width=1.0, low_cut=0, high_cut=0):
+def computeRFs(network, station, location, data_directory, gaussian_width=1.0, high_cut=0, low_cut=0):
     # Define network, station and location
     ntwk = network
     stat = station
@@ -43,13 +54,6 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, l
             lo = low_cut
             hi = high_cut
             st[i].data = su.bp_butter(st[i].data, lo, hi, fs, 3)
-        # if show_traces == 1:
-        #     plt.ion()
-        #     plt.plot(st[i].data, 'k', linewidth=0.25)
-        #     plt.title(st[i].meta.starttime)
-        #     plt.show(block=False)
-        #     plt.pause(0.05)
-        #     plt.cla()
 
     # Rotate data
     for i in range(0, len(st)):
@@ -58,7 +62,7 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, l
             te = st[i].meta.endtime
             for j in range(-2, 3):
                 if (st[(i+j)].stats.sac.kcmpnm == u'BH2') or (st[(i+j)].stats.sac.kcmpnm == u'BHE') and \
-                   (tb - 0.5 <= st[(i+j)].meta.starttime <= tb + 0.5 or te - 0.5 <= st[(i+j)].meta.endtime <= te +0.5):
+                   (tb - 0.5 <= st[(i+j)].meta.starttime <= tb + 0.5 or te - 0.5 <= st[(i+j)].meta.endtime <= te + 0.5):
                     # print('Rotating horizontals...', st[i].id, st[(i+j)].id)
                     ch1 = i
                     ch2 = int(i + j)
@@ -78,13 +82,11 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, l
     # Cut and taper data
     for i in range(0, len(st)):
         print(i)
-        # Check to make sure data exists
-        #if st[i].data.size != st[i].meta.sac.npts:
-        #    print('Array size is problematic, moving on to the next trace...')
-        #else:
-            # Get indices of window around P arrival
-        bidx = int(round((st[i].meta.sac.t0 - 30) * st[i].meta.sampling_rate) - 1)
-        eidx = int(round((st[i].meta.sac.t0 + 90) * st[i].meta.sampling_rate))
+        # Get indices of window around P arrival
+        window_start = 30
+        window_end = 90
+        bidx = int(round((st[i].meta.sac.t0 - window_start) * st[i].meta.sampling_rate) - 1)
+        eidx = int(round((st[i].meta.sac.t0 + window_end) * st[i].meta.sampling_rate))
         if eidx > st[i].data.size:
             print('Array size is problematic, moving on to the next trace...')
             continue
@@ -111,9 +113,11 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, l
     rf = []
     rms = []
     rad_idx = []
+    snr_z = []
+    snr_r = []
     k = 0
     for i in range(0, len(st)):
-        if (st[i].stats.sac.kcmpnm == u'BH1') or (st[i].stats.sac.kcmpnm == u'BHN'):
+        if (st[i].stats.sac.kcmpnm == u'BH1') or (st[i].stats.sac.kcmpnm == u'BHE'):
             tb = st[i].meta.starttime
             te = st[i].meta.endtime
             for j in range(-2, 3):
@@ -124,6 +128,24 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, l
                     rf.append(k)
                     rms.append(k)
                     rad_idx.append(k)
+                    snr_z.append(k)
+                    snr_r.append(k)
+                    # Get indices for calculating signal to noise ratio (method of Gao and Liu, 2014)
+                    noise_begin = int(round((window_start - 20) * st[i].meta.sampling_rate) - 1)
+                    noise_end = int(round((window_start - 10) * st[i].meta.sampling_rate))
+                    signal_begin = int(round((window_start - 8) * st[i].meta.sampling_rate) - 1)
+                    signal_end = int(round((window_start + 12) * st[i].meta.sampling_rate))
+                    # Calculate vertical component SNR
+                    vertical_noise = np.abs(np.mean(st[chz].data[noise_begin:noise_end]))
+                    vertical_signal = np.max(np.abs(st[chz].data[signal_begin:signal_end]))
+                    vertical_snr = vertical_signal / vertical_noise
+                    snr_z[k] = vertical_snr
+                    # Calculate radial component SNR
+                    radial_noise = np.abs(np.mean(st[i].data[noise_begin:noise_end]))
+                    radial_signal = np.max(np.abs(st[i].data[signal_begin:signal_end]))
+                    radial_snr = radial_signal / radial_noise
+                    snr_r[k] = radial_snr
+                    # Calculate receiver function
                     [rf[k], rms[k]] = rfunc.iterdecon(st[i].data, st[chz].data,
                                                       st[i].meta.delta, len(st[i].data),
                                                       tshift, gw, itmax, tol)
@@ -139,32 +161,23 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, l
         rfstream[i] = obspy.Trace(rf[i])
         rfstream[i].stats = st[ch1].stats
         rfstream[i].stats.sac.b = 0
-        # Save RMS error to 'USER0' header
+        # Save vertical SNR to 'USER0' header
+        rfstream[i].stats.sac.user0 = snr_z[i]
+        # Save radial SNR to 'USER1' header
+        rfstream[i].stats.sac.user1 = snr_r[i]
+        # Save RMS error to 'USER2' header
         fit.append(i)
         fit[i] = 100*(1 - rms[i][-1])
-        rfstream[i].stats.sac.user0 = fit[i]
+        rfstream[i].stats.sac.user2 = fit[i]
         # Format filename
         evid = st[ch1].stats.starttime.isoformat().replace('-', '.').replace('T', '.').replace(':', '.').split('.')
         evid.extend([ntwk, stat, loc, 'RF', 'sac'])
         evid = ".".join(evid)
-        # Calculate quality ratio and save to 'USER1' header
+        # Calculate quality ratio and save to 'USER3' header
         qc.append(i)
         qc[i] = rfunc.rf_quality(rf[i], st[ch1].meta.delta, gw, tshift=tshift)
-        rfstream[i].stats.sac.user1 = qc[i]
+        rfstream[i].stats.sac.user3 = qc[i]
         # Write to SAC files
         rfstream[i].write(rf_dir + evid, format='SAC')
 
     print('Receiver function computation complete!')
-# Make scatter plot showing statistics
-# plt.scatter(fit, qc)
-# plt.show()
-
-# for i in range(0, len(rf)):
-#     if rfstream[i].stats.sac.user1 > 0.35:
-#         plt.ion()
-#         plt.plot(rf[i], 'k', linewidth=0.5)
-#         plt.title(evid + ' Quality: ' + str(rfstream[i].stats.sac.user0))
-#         plt.ylim(-0.5, 1.0)
-#         plt.show(block=False)
-#         plt.pause(0.5)
-#         plt.cla()
