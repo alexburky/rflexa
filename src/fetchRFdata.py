@@ -38,15 +38,19 @@ def fetchRFdata(network, station, location, channel, data_directory, minimum_mag
     else:
         sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_COUNTS/"
 
-    # sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
     if os.path.exists(sac_dir):
-        # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
-        print('Data directory exists. Terminating fetch request...')
-        quit()
-        # shutil.rmtree(sac_dir)
-        # os.makedirs(sac_dir)
+        overwrite = input('Earthquake directory exists! Would you like to overwite it? [y/n]')
+        if overwrite == 'y':
+            shutil.rmtree(sac_dir)
+        elif overwrite == 'n':
+            print('You have chosen not to overwrite the directory. Terminating process...')
+            quit()
+        else:
+            print('ERROR: Invalid response. Terminating process...')
+            quit()
     if not os.path.exists(sac_dir):
         os.makedirs(sac_dir)
+
     # Define amount of data desired (minutes)
     duration = 60
 

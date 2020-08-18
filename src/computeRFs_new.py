@@ -3,6 +3,7 @@ import seisutils as su
 import iterdecon as rfunc
 import numpy as np
 import os
+import shutil
 from scipy import signal
 
 # ------------------------------------------------------------------------------------------
@@ -22,7 +23,8 @@ from scipy import signal
 # ------------------------------------------------------------------------------------------
 
 
-def computeRFs(network, station, location, data_directory, gaussian_width=1.0, high_cut=0, low_cut=0):
+def computeRFs(network, station, location, data_directory, gaussian_width=1.0, high_cut=0, low_cut=0,
+               response_removed=True):
     # Define network, station and location
     ntwk = network
     stat = station
@@ -30,17 +32,34 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
     gw = gaussian_width
 
     show_traces = 0
-    sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
-    if low_cut != 0 and high_cut != 0:
-        rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/FILTERED_" + str(low_cut) + "_" + \
-                 str(high_cut) + "/GW" + ''.join(str(gw).split('.')) + "/"
+    # Determine directory containing earthquakes and output directory
+    if response_removed:
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
+        if low_cut != 0 and high_cut != 0:
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/FILTERED_" + str(low_cut) + "_" + \
+                     str(high_cut) + "/GW" + ''.join(str(gw).split('.')) + "/"
+        else:
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + \
+                     ''.join(str(gw).split('.')) + "/"
     else:
-        rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + \
-                 ''.join(str(gw).split('.')) + "/"
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_COUNTS/"
+        if low_cut != 0 and high_cut != 0:
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_COUNTS/FILTERED_" + str(low_cut) + \
+                     "_" + str(high_cut) + "/GW" + ''.join(str(gw).split('.')) + "/"
+        else:
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_COUNTS/UNFILTERED/GW" + \
+                     ''.join(str(gw).split('.')) + "/"
 
     if os.path.exists(rf_dir):
-        print('Receiver function directory exists! Terminating process...')
-        quit()
+        overwrite = input('Receiver function directory exists! Would you like to overwrite it? [y/n]')
+        if overwrite == 'y':
+            shutil.rmtree(rf_dir)
+        elif overwrite == 'n':
+            print('Terminating process...')
+            quit()
+        else:
+            print('ERROR: Invalid response. Terminating process...')
+            quit()
     if not os.path.exists(rf_dir):
         os.makedirs(rf_dir)
 
@@ -49,6 +68,9 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
     # Filter data
     if low_cut != 0 and high_cut != 0:
         for i in range(0, len(st)):
+            # For data with no instrument response removed, demean the data first
+            if not response_removed:
+                st[i].detrend('demean')
             # Test with rounded vs. un-rounded data
             fs = 1/st[i].meta.sac.delta
             lo = low_cut
