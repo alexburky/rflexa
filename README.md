@@ -10,5 +10,5 @@ This guide is not intended to be a complete introduction to Python, but if you a
   * If you like to work from the command-line/terminal, read about setting up [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) to work from the command-line.  
   * If you like to work within an IDE, search Google for a tutorial on how to setup conda in your respective IDE. I recommend [PyCharm](https://www.jetbrains.com/pycharm/download/#section=mac), as it is built entirely for Python development and comes with a thorough [conda setup guide](https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html). The Community version is free and has been sufficient for my needs.
 
-rflexa is built on top of the [ObsPy](https://github.com/obspy/obspy/wiki/Installation-via-Anaconda) package, and requires that you have ObsPy installed in order to run properly. If you already have ObsPy installed, you can continue to the download the source code from the **src** folder.
+rflexa is built on top of the [ObsPy](https://github.com/obspy/obspy/wiki/Installation-via-Anaconda) package, and requires that you have ObsPy installed in order to run properly. If you already have ObsPy installed, you can continue to the download and use the source code from the **src** folder.
 
