@@ -5,7 +5,8 @@ from scipy import signal
 import os
 import matplotlib
 from matplotlib import rc
-matplotlib.use('Qt4Agg')
+# matplotlib.use('Qt4Agg')
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 # This script makes a contour plot of receiver function data in the time domain as a function of epicentral
@@ -15,18 +16,19 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------------------------
 
 # Read in receiver function data
-data_directory = "/mnt/usb/aburky/IFILES/NETWORKS/"
+# data_directory = "/mnt/usb/aburky/IFILES/NETWORKS/"
+data_directory = "/Users/aburky/IFILES/NETWORKS/"
 ntwk = "IU"
 stat = "BBSR"
 loc = "00"
 gw = 1.0
-qc = 0.2
-fit = 80
+qc = 0.05
+fit = 90
 # Undo time-shift if it existed
 tshift = 10
 
 # Construct path to receiver funcitons
-rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + ''.join(str(gw).split('.')) + "/"
+rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/FILTERED_0.04_5/GW" + ''.join(str(gw).split('.')) + "/"
 rfs = obspy.read(rf_dir + '*.sac')
 # Construct path to figure
 fig_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/GRAPHICS/"
@@ -70,13 +72,14 @@ for i in range(0, len(rfs)):
 norm_rfs = np.squeeze(norm_rfs)
 
 # Read in Gao travel time table
-pdstime = np.loadtxt(r"/mnt/usb/aburky/pds.ttime")
+# pdstime = np.loadtxt(r"/mnt/usb/aburky/pds.ttime")
+pdstime = np.loadtxt(r"/Users/aburky/pds.ttime")
 # Construct list of time to depth conversion values
 ttzm = []
 ags = np.zeros((1, 801))
 j = 0
 for i in range(0, len(rfs)):
-    if rfs[i].stats.sac.user0 > 80 and rfs[i].stats.sac.user1 > 0.2:
+    if rfs[i].stats.sac.user0 > fit and rfs[i].stats.sac.user1 > qc:
         ttzm.append(j)
         idx = np.where(np.around(pdstime[:, 0], 2) == round(rfs[i].stats.sac.user9, 2))
         ttzm[j] = pdstime[idx, 2]

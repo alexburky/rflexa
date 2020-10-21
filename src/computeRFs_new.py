@@ -19,12 +19,11 @@ from scipy import signal
 # USER3: Quality metric, nu
 #
 # ------------------------------------------------------------------------------------------
-# Last updated 8/18/2020 by aburky@princeton.edu
+# Last updated 9/8/2020 by aburky@princeton.edu
 # ------------------------------------------------------------------------------------------
 
 
-def computeRFs(network, station, location, data_directory, gaussian_width=1.0, high_cut=0, low_cut=0,
-               response_removed=True):
+def computeRFs(network, station, location, data_directory, input_units, gaussian_width=1.0, high_cut=0, low_cut=0):
     # Define network, station and location
     ntwk = network
     stat = station
@@ -33,15 +32,23 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
 
     show_traces = 0
     # Determine directory containing earthquakes and output directory
-    if response_removed:
+    if input_units == 'displacement':
         sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
         if low_cut != 0 and high_cut != 0:
-            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/FILTERED_" + str(low_cut) + "_" + \
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_DISP/FILTERED_" + str(low_cut) + "_" + \
                      str(high_cut) + "/GW" + ''.join(str(gw).split('.')) + "/"
         else:
-            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS/UNFILTERED/GW" + \
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_DISP/UNFILTERED/GW" + \
                      ''.join(str(gw).split('.')) + "/"
-    else:
+    elif input_units == 'velocity':
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_VEL/"
+        if low_cut != 0 and high_cut != 0:
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_VEL/FILTERED_" + str(low_cut) + "_" + \
+                str(high_cut) + "/GW" + ''.join(str(gw).split('.')) + "/"
+        else:
+            rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_VEL/UNFILTERED/GW" + \
+                    ''.join(str(gw).split('.')) + "/"
+    elif input_units == 'counts':
         sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_COUNTS/"
         if low_cut != 0 and high_cut != 0:
             rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_COUNTS/FILTERED_" + str(low_cut) + \
@@ -49,6 +56,10 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
         else:
             rf_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFUNCS_COUNTS/UNFILTERED/GW" + \
                      ''.join(str(gw).split('.')) + "/"
+    else:
+        print('ERROR: Invalid entry for input_units. Acceptable values are \'displacement,\' \'velocity,\' or '
+              '\'counts\'')
+        quit()
 
     if os.path.exists(rf_dir):
         overwrite = input('Receiver function directory exists! Would you like to overwrite it? [y/n]')
@@ -69,7 +80,7 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
     if low_cut != 0 and high_cut != 0:
         for i in range(0, len(st)):
             # For data with no instrument response removed, demean the data first
-            if not response_removed:
+            if input_units == 'counts':
                 st[i].detrend('demean')
             # Test with rounded vs. un-rounded data
             fs = 1/st[i].meta.sac.delta
@@ -103,7 +114,7 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
 
     # Cut and taper data
     for i in range(0, len(st)):
-        print(i)
+        # print(i)
         # Get indices of window around P arrival
         window_start = 30
         window_end = 90
@@ -117,7 +128,7 @@ def computeRFs(network, station, location, data_directory, gaussian_width=1.0, h
             # Taper data
             window = signal.tukey(eidx - bidx, alpha=0.25)
             st[i].data = st[i].data*window
-            print('Taper successful')
+            # print('Taper successful')
 
         if show_traces == 1:
             plt.ion()

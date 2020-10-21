@@ -7,7 +7,7 @@ import numpy as np
 import seisutils as su
 import os
 import shutil
-matplotlib.use('Qt4Agg')
+# matplotlib.use('Qt4Agg')
 import matplotlib.pyplot as plt
 
 # ------------------------------------------------------------------------------------------
@@ -21,14 +21,15 @@ import matplotlib.pyplot as plt
 # ------------------------------------------------------------------------------------------
 
 # Define network, station, location, and channel codes to fetch data from
-ntwk = "IU"
-stat = "BBSR"
+ntwk = "II"
+stat = "SACV"
 loc = "00"
 chan = "BH*"
 # Define the client that hosts the desired data
 client = Client("IRIS")
 # Define path to directory where seismic data will be saved as SAC files
-sac_dir = "/mnt/usb/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
+# sac_dir = "/mnt/usb/aburky/PycharmProjects/bermudaRFs/data/rfQuakes/"
+sac_dir = "/Users/aburky/IFILES/NETWORKS/"
 if os.path.exists(sac_dir):
     # Maybe add an interface/dialogue that checks with user if they would like to overwrite folder?
     shutil.rmtree(sac_dir)
@@ -45,7 +46,7 @@ resp_t0 = []
 resp_tf = []
 pre_filt = []
 for i in range(0, nstats):
-    nresp = len(inv.networks[0].stations[i].channels)/3
+    nresp = int(len(inv.networks[0].stations[i].channels)/3)
     for j in range(0, nresp):
         # Start time of station operation for given channels
         resp_t0.append(inv.networks[0].stations[i].channels[j].start_date)

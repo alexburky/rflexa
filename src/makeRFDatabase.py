@@ -22,14 +22,16 @@ data_directory = "/Users/aburky/IFILES/NETWORKS/"
     # except:
     #     print('Receiver function computation failed, do some debugging!')
 
-#fetchRFdata(network=network, station=station, location=location, channel=channel, data_directory=data_directory,
-#            minimum_magnitude=5.5, maximum_magnitude=9.0, remove_response=False)
+fetchRFdata(network=network, station=station, location=location, channel=channel, data_directory=data_directory,
+            output_units='velocity', minimum_magnitude=6.9, maximum_magnitude=7.0)
+
+print('Data retrieval successful!')
 
 # print('Data retrieval successful for station: ' + station)
 
 # for station in stations:
-computeRFs(network=network, station=station, location=location, data_directory=data_directory, gaussian_width=1.0,
-           response_removed=False)
+computeRFs(network=network, station=station, location=location, data_directory=data_directory, input_units='velocity',
+           gaussian_width=1.0)
 
 # Not calculating the SNR in this fetch script currently, need to update this!
 

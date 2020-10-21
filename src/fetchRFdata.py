@@ -14,6 +14,7 @@ import shutil
 # through the entire receiver function analysis for reproducibility and teaching purposes
 #
 # - Add an option that allows the user to not remove the instrument response
+# - User can select what output units should be: 'counts' 'displacement' 'velocity'
 #
 # ------------------------------------------------------------------------------------------
 # Last updated 8/18/2020 by aburky@princeton.edu
@@ -21,8 +22,8 @@ import shutil
 
 
 # Make the whole thing a function!
-def fetchRFdata(network, station, location, channel, data_directory, minimum_magnitude=6.9, maximum_magnitude=7.0,
-                remove_response=True):
+def fetchRFdata(network, station, location, channel, data_directory, output_units, minimum_magnitude=6.9,
+                maximum_magnitude=7.0):
     # Define network, station, location, and channel codes to fetch data from
     ntwk = network
     stat = station
@@ -33,10 +34,16 @@ def fetchRFdata(network, station, location, channel, data_directory, minimum_mag
     client = Client("IRIS")
     # Define path to directory where seismic data will be saved as SAC files
     # sac_dir = "/mnt/usb/aburky/IFILES/STATIONS/" + ntwk + "_" + stat + "/RFQUAKES/"
-    if remove_response:
-        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES/"
-    else:
+    #if remove_response:
+    if output_units == 'displacement':
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_DISP/"
+    elif output_units == 'velocity':
+        sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_VEL/"
+    elif output_units == 'counts':
         sac_dir = data_directory + ntwk + "/" + stat + "/" + loc + "/RFQUAKES_COUNTS/"
+    else:
+        print('ERROR: Invalid output units. Acceptable options are \'displacement,\' \'velocity,\' or \'counts\'')
+        quit()
 
     if os.path.exists(sac_dir):
         overwrite = input('Earthquake directory exists! Would you like to overwite it? [y/n]')
@@ -117,8 +124,11 @@ def fetchRFdata(network, station, location, channel, data_directory, minimum_mag
                 if resp_t0[k] <= teq <= resp_tf[k]:
                     pf = pre_filt[k]
             # Remove instrument response
-            if remove_response:
+            if output_units == 'displacement':
                 st[j].remove_response(pre_filt=pf, output="DISP", water_level=70, zero_mean=True, taper=True,
+                                      taper_fraction=0.05)
+            elif output_units == 'velocity':
+                st[j].remove_response(pre_filt=pf, output="VEL", water_level=70, zero_mean=True, taper=True,
                                       taper_fraction=0.05)
             # Prepare filename for saving
             evchan = st[j].meta.channel

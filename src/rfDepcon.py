@@ -7,7 +7,7 @@ import numpy as np
 # This function takes a receiver function in the time domain as input and produces a receiver function converted
 # to depth as output. It supports a variety of one-dimensional Earth models for depth conversion.
 # ---------------------------------------------------------------------------------------------------------------------
-# Last updated 8/18/2020 by aburky@princeton.edu
+# Last updated 9/8/2020 by aburky@princeton.edu
 # ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -29,7 +29,8 @@ def rf_depth_conversion(rf_data, dt, ray_parameter, dz, model):
     # model = 'iasp91'
 
     if model == 'iasp91':
-        iasp91_file = open("/Users/aburky/IFILES/MODELS/IASP91/IASP91.tvel")
+        # iasp91_file = open("/Users/aburky/IFILES/MODELS/IASP91/IASP91.tvel")
+        iasp91_file = open("/home/aburky/IFILES/MODELS/IASP91/IASP91.tvel")
         iasp91 = np.loadtxt(iasp91_file, delimiter=" ", skiprows=2)
         z = iasp91[:, 0][0:121]
         vp = iasp91[:, 1][0:121]
