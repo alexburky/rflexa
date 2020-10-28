@@ -33,5 +33,5 @@ rflexa is built on top of the
 [ObsPy](https://github.com/obspy/obspy/wiki/Installation-via-Anaconda)
 package, and requires that you have ObsPy installed in order to run
 properly. If you already have ObsPy installed, you can continue to the
-download and use the source code from the **src** folder.
+download and use the source code from the folders above.
 
