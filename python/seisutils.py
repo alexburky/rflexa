@@ -4,7 +4,7 @@ from scipy import signal
 
 # This file contains various functions which can be used for routine seismic data processing.
 # ---------------------------------------------------------------------------------------------
-# Last updated 10/22/2019 by aburky@princeton.edu
+# Last updated 10/29/2020 by aburky@princeton.edu
 # ---------------------------------------------------------------------------------------------
 
 
@@ -157,6 +157,10 @@ def transfer(data, delta, freq_limits, units, pz_file):
     dfreq = 1 / (nfft * delta)
     nfreq = int((nfft / 2) + 1)
 
+    # Pre-initialize vectors?
+    iresp = np.zeros(nfreq, dtype=complex)
+    denr = np.zeros(nfreq)
+
     # Construct frequency grid
     f = np.linspace(0, 20, nfreq)
     f = 2 * np.pi * f
@@ -170,51 +174,42 @@ def transfer(data, delta, freq_limits, units, pz_file):
     w, h = signal.freqresp(t_function, f)
 
     # Invert the transfer function spectrum
-    iresp = np.zeros(nfreq, dtype=complex)
-    for i in np.arange(1, nfreq):
-        denr = (h[i].real ** 2 + h[i].imag ** 2)
-        denr = 1.0 / denr
-        if denr < 1e-37:
-            iresp[i] = complex(0, 0)
-        else:
-            iresp[i] = complex(h[i].real * denr, -h[i].imag * denr)
+    denr[1:] = 1.0 / (pow(h[1:].real, 2) + pow(h[1:].imag, 2))
+    iresp[1:] = np.vectorize(complex)(np.multiply(h[1:].real, denr[1:]), np.multiply(-h[1:].imag, denr[1:]))
 
-    # Filter the data (maybe put this in a separate function..?)
+    # Get frequency limits of cosine filter
     f1 = freq_limits[0]
     f2 = freq_limits[1]
     f3 = freq_limits[2]
     f4 = freq_limits[3]
-    for i in np.arange(1, nfreq):
-        freq = i * dfreq
-        if freq < f1:
-            fac = 0.0
-        elif f1 <= freq <= f2:
-            fac = 0.5 * (1 - np.cos(np.pi * (freq - f1) / (f2 - f1)))
-        elif f3 <= freq <= f4:
-            fac = 0.5 * (1 + np.cos(np.pi * (freq - f3) / (f4 - f3)))
-        elif freq > f4:
-            fac = 0.0
-        else:
-            fac = 1.0
 
-        iresp[i] = iresp[i] * fac
+    # Move the construction of the cosine filter to a different function!
+    cosine_filter = np.zeros(nfreq, dtype=float)
+    idx = np.where(f < 0.002)
+    cosine_filter[idx] = 0.0
+    idx = np.where(np.logical_and(f >= 0.002, f <= 0.004))
+    cosine_filter[idx] = 0.5 * (1 - np.cos(np.pi * (f[idx] - f1) / (f2 - f1)))
+    idx = np.where(np.logical_and(f > f2, f < f3))
+    cosine_filter[idx] = 1.0
+    idx = np.where(np.logical_and(f >= f3, f <= f4))
+    cosine_filter[idx] = 0.5 * (1 + np.cos(np.pi * (f[idx] - f3) / (f4 - f3)))
+    idx = np.where(f > f4)
+    cosine_filter[idx] = 0.0
+
+    # Multiply the inverted response by the cosine filter
+    iresp = iresp * cosine_filter
 
     # Take the Fourier transform of the data
     data_fft = np.fft.fft(data, nfft)
 
-    # Multiply transformed data by the transfer function
-    for i in np.arange(1, nfreq):
-        tempR = iresp[i].real * data_fft[i].real - iresp[i].imag * data_fft[i].imag
-        tempI = iresp[i].real * data_fft[i].imag + iresp[i].imag * data_fft[i].real
-        data_fft[i] = complex(tempR, tempI)
-
-        if i < (nfreq - 1):
-            j = nfft - i
-            data_fft[j] = complex(tempR, -tempI)
+    # Multiply the data by the inverted, filtered instrument response
+    data_fft[0:nfreq] = data_fft[0:nfreq] * iresp
+    data_fft[nfreq:] = np.conj(np.flipud(data_fft[1:(nfreq - 1)]))
 
     data_fft[0] = complex(0, 0)
     data_fft[-1] = complex(np.sqrt(data_fft[-1].real * data_fft[-1].real + data_fft[-1].imag * data_fft[-1].imag), 0)
 
+    # Inverse transform back to the time domain
     data = np.fft.ifft(data_fft, nfft)[0:npts].real
 
     return data
