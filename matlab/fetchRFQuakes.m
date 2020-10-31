@@ -10,6 +10,36 @@ channel = 'BH*';
 
 ch = irisFetch.Channels('RESPONSE',network,station,location,channel);
 
+% So, it looks like you can't get a RESP file for a station that has
+% been updated without getting the RESP information for all prior
+% periods that station was operational.
+% Need to come up with a way to deal with this - looks like we will need
+% to use some datestr manipulation!
+% Just save the one RESP file that has it all...
+
+% Loop over all channels, and then find the latest operational date for
+% each channel (BHE,BHN,BHZ,etc.) - thenn fetch and save the RESP file
+% for this time period!
+
+% Loop over each channel and get the RESP file
+for i = 1:length(ch)
+    t1 = ch(i).StartDate;
+    t2 = datetime(t1) + milliseconds(1);
+    formatOut = 'yyyy-mm-dd HH:MM:SS.FFF';
+    t2 = datestr(t2,formatOut);
+    % Fetch the RESP file
+    re = irisFetch.Resp(network,station,location,ch(i).ChannelCode,t1,t2);
+    % Format the RESP filename
+    respFile = sprintf('RESP.%s.%s.%s.%s.%d',network,station,...
+               ch(i).LocationCode,ch(i).ChannelCode,i);
+    % Save the RESP file
+    fID = fopen(respFile,'w');
+    fprintf(fID,re);
+    fclose(fID);
+end
+
+%%
+
 t1 = ch(1).StartDate;
 % Use the start date plus a very short time as the time window
 t2 = '2014-08-28 20:00:00.000';
@@ -18,6 +48,8 @@ t2 = '2014-08-28 20:00:00.000';
 channel = 'BHZ';
 
 re = irisFetch.Resp(network,station,location,channel,t1,t2);
+
+% Loop over all channels and save a RESP file for each one!
 
 R = regexp(re,'\n','split');
 % Get the number of poles and the number of zeroes
@@ -51,3 +83,16 @@ tmp = split(R{sensLine(end)});
 sens = str2double(tmp{end});
 k = a0 * sens;
 
+% Try saving the instrument response information to a file
+fID = fopen('RESP.TEST','w');
+fprintf(fID,re);
+fclose(fID);
+
+% End date of one channel is equal to the start date of the next.
+% what to do about this?
+
+%% Sort out some date time logic here
+
+t2 = datetime(t1) + milliseconds(1);
+formatOut = 'yyyy-mm-dd HH:MM:SS.FFF';
+t2 = datestr(t2,formatOut);
