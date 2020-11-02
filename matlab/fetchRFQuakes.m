@@ -5,6 +5,8 @@ clear,clc
 % Define the network, station that you would like to fetch data for
 network = 'TA';
 station = 'O61A';
+% network = 'IU';
+% station = 'BBSR';
 location = '*';
 channel = 'BH*';
 
@@ -35,6 +37,34 @@ for i = 1:length(ch)
     % Save the RESP file
     fID = fopen(respFile,'w');
     fprintf(fID,re);
+    fclose(fID);
+end
+
+% Loop over each channel and make the PZ file
+for i = 1:length(ch)
+    % t1 = ch(i).StartDate;
+    % t2 = datetime(t1) + milliseconds(1);
+    % formatOut = 'yyyy-mm-dd HH:MM:SS.FFF';
+    % t2 = datestr(t2,formatOut);
+    % Get the poles, zeros, and constant
+    z = ch(i).Response.Stage(1).PolesZeros.Zero;
+    p = ch(i).Response.Stage(1).PolesZeros.Pole;
+    k = double(ch(i).Response.Stage(1).PolesZeros.NormalizationFactor)*...
+        double(ch(i).Response.InstrumentSensitivity.Value);
+    % Format the PZ filename
+    pzFile = sprintf('SAC_PZs_%s_%s_%s.%d',network,station,...
+             ch(i).ChannelCode,i);
+    % Save the PZ file
+    fID = fopen(pzFile,'w');
+    fprintf(fID,sprintf('ZEROS %d\n',length(z)));
+    for j = 1:length(z)
+        fprintf(fID,sprintf('%+e %+e\n',real(z(j)),imag(z(j))));
+    end
+    fprintf(fID,sprintf('POLES %d\n',length(p)));
+    for j = 1:length(p)
+        fprintf(fID,sprintf('%+e %+e\n',real(p(j)),imag(p(j))));
+    end
+    fprintf(fID,sprintf('CONSTANT %e',k));
     fclose(fID);
 end
 
@@ -96,3 +126,10 @@ fclose(fID);
 t2 = datetime(t1) + milliseconds(1);
 formatOut = 'yyyy-mm-dd HH:MM:SS.FFF';
 t2 = datestr(t2,formatOut);
+
+%% Calculate the poles zeros constant?
+
+z = ch(1).Response.Stage(1).PolesZeros.Zero;
+p = ch(1).Response.Stage(1).PolesZeros.Pole;
+k = double(ch(1).Response.Stage(1).PolesZeros.NormalizationFactor) * ...
+    double(ch(1).Response.InstrumentSensitivity.Value);
