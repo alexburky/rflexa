@@ -1,5 +1,15 @@
 % fetchRFQuakes.m
 
+% This script fetches earthquake data for receiver function analysis,
+% and additionally fetches poles and zeros data for the selected
+% stations and channels. The earthquake data are saved as .SAC files,
+% and their filenames are formatted so that they can be easily linked
+% to their corresponding poles and zeros data.
+%
+%--------------------------------------------------------------------------
+% Last updated 11/03/2020 by aburky@princeton.edu
+%--------------------------------------------------------------------------
+
 clear,clc
 
 % Define the network, station that you would like to fetch data for
