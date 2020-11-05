@@ -7,7 +7,7 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 11/03/2020 by aburky@princeton.edu
+% Last updated 11/05/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -19,6 +19,12 @@ station = 'O61A';
 % station = 'SACV';
 location = '*';
 channel = 'BH*';
+
+% Define desired earthquake parameters
+minMag = 7.0;
+maxMag = 7.5;
+minRad = 30;
+maxRad = 90;
 
 ch = irisFetch.Channels('RESPONSE',network,station,location,channel);
 
@@ -77,9 +83,29 @@ for i = 1:length(ch)
     end
     fprintf(fID,sprintf('CONSTANT %e',k));
     fclose(fID);
+    
+    % While we are iterating over the channel, check for earthquakes
+    % that meet our search criterion during its operation
+    donut = [ch(i).Latitude,ch(i).Longitude,maxRad,minRad];
+    ev = irisFetch.Events('MinimumMagnitude',minMag,'MaximumMagnitude',...
+            maxMag,'radialcoordinates',donut,'startTime',t1,...
+            'endTime',t2);
+        
+    % Loop over each event, get the trace for the channel, and save
+    for j = 1:length(ev)
+        % Get start time of event
+        ev_start = ev(j).PreferredTime;
+        timeFormat = 'yyyy-mm-dd HH:MM:SS.FFF';
+        ev_end = datetime(ev_start) + hours(1);
+        ev_end = datestr(ev_end,timeFormat);
+        
+        % Fetch data from the current channel
+        tr = irisFetch.Traces(network,station,location,...
+                ch(i).ChannelCode,ev_start,ev_end);
+    end
 end
 
-% Once you have the instrument response files, get some earthquake data!
+% Once you have the poles and zeros files, fetch some earthquake data!
 
 
 %%
