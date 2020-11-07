@@ -7,7 +7,7 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 11/05/2020 by aburky@princeton.edu
+% Last updated 11/07/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -102,6 +102,8 @@ for i = 1:length(ch)
         % Fetch data from the current channel
         tr = irisFetch.Traces(network,station,location,...
                 ch(i).ChannelCode,ev_start,ev_end);
+            
+        % Format SAC header for saving
     end
 end
 
