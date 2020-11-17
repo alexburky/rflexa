@@ -7,7 +7,7 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 11/14/2020 by aburky@princeton.edu
+% Last updated 11/17/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
