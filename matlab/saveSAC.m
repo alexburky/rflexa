@@ -1,4 +1,4 @@
-function saveSAC(trace,startTime,directory)
+function saveSAC(trace,startTime,directory,varargin)
 % SAVESAC Saves trace data to a SAC file and fills all of the appropriate
 %         header variables.
 %
@@ -7,16 +7,20 @@ function saveSAC(trace,startTime,directory)
 %---Input Variables--------------------------------------------------------
 % trace     - trace structure containing data and station information
 %             (specifcally, the output of irisFetch.Traces)
-% startTime - date string indicated the start time of the data
+% startTime - date string indicating the start time of the data
 %             formatted as: 'yyyy-mm-dd HH:MM:SS.FFF'
 % directory - string of the folder where you would like to save the data
+% 
+% Optional Variables:
+% event     - event structure containing information about the
+%             earthquake that seismic data potentially pertains to
 %
 %--------------------------------------------------------------------------
-% Last updated 11/15/2019 by aburky@princeton.edu
+% Last updated 11/24/2019 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % TO DO: add the option to also save event information a la receiver
-%        function workflow
+%        function workflow    
 
 % SAC timeseries data
 sacmat.data = trace.data;
@@ -46,6 +50,17 @@ if dseconds == 0
 else
     sacmat.hdr.nzsec = str2double(extractBefore(num2str(dseconds),'.'));
     sacmat.hdr.nzmsec = str2double(extractAfter(num2str(dseconds),'.'));
+end
+
+% The user has entered four variables, save event data
+if nargin > 3
+    event = varargin{1};
+    sacmat.hdr.mag = event.PreferredMagnitudeValue;
+    sacmat.hdr.evla = event.PreferredLatitude;
+    sacmat.hdr.evlo = event.PreferredLongitude;
+    sacmat.hdr.evdp = event.PreferredDepth;
+    
+    % TO DO: Add event - station data, like backazimuth, gcarc...
 end
 
 % Format the SAC filename
