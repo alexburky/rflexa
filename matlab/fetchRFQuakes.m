@@ -7,8 +7,11 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 11/24/2020 by aburky@princeton.edu
+% Last updated 11/25/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
+
+% To do: Add the option to include the P arrival time to the saved data
+%   using MatTauP
 
 clear,clc
 
@@ -103,7 +106,9 @@ for i = 1:length(ch)
         tr = irisFetch.Traces(network,station,location,...
                 ch(i).ChannelCode,ev_start,ev_end);
             
-        % Format SAC header for saving
+        % Save the data to a SAC file
+        sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
+        saveSAC(tr,ev_start,sacDir,'event',ev,'pz',i);
     end
 end
 
