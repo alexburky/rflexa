@@ -16,11 +16,8 @@ function saveSAC(trace,startTime,directory,varargin)
 %             earthquake that seismic data potentially pertains to
 %
 %--------------------------------------------------------------------------
-% Last updated 11/24/2019 by aburky@princeton.edu
+% Last updated 11/25/2019 by aburky@princeton.edu
 %--------------------------------------------------------------------------
-
-% TO DO: add the option to also save event information a la receiver
-%        function workflow    
 
 % SAC timeseries data
 sacmat.data = trace.data;
@@ -52,23 +49,35 @@ else
     sacmat.hdr.nzmsec = str2double(extractAfter(num2str(dseconds),'.'));
 end
 
-% The user has entered four variables, save event data
+% The user has entered optional variables
 if nargin > 3
-    event = varargin{1};
-    sacmat.hdr.mag = event.PreferredMagnitudeValue;
-    sacmat.hdr.evla = event.PreferredLatitude;
-    sacmat.hdr.evlo = event.PreferredLongitude;
-    sacmat.hdr.evdp = event.PreferredDepth;
-    
-    % TO DO: Add event - station data, like backazimuth, gcarc...
+    for i = 1:length(varargin)
+        % User has input an event data structure
+        if strcmp(varargin{i},'event')
+            event = varargin{i+1};
+            sacmat.hdr.mag = event.PreferredMagnitudeValue;
+            sacmat.hdr.evla = event.PreferredLatitude;
+            sacmat.hdr.evlo = event.PreferredLongitude;
+            sacmat.hdr.evdp = event.PreferredDepth;
+            % Event - station derived data
+            sacmat.hdr.baz = azimuth(sacmat.hdr.stla,sacmat.hdr.stlo,...
+            sacmat.hdr.evla,sacmat.hdr.evlo);
+            [sacmat.hdr.gcarc,sacmat.hdr.az] = distance(sacmat.hdr.evla,...
+            sacmat.hdr.evlo,sacmat.hdr.stla,sacmat.hdr.stlo);
+            sacmat.hdr.dist = deg2km(sacmat.hdr.gcarc);
+        % User wants to save PZ Index
+        elseif strcmp(varargin{i},'pz')
+            pzIndex = varargin{i+1};
+        end
+    end
 end
 
 % Format the SAC filename
-fname = sprintf('%i.%02d.%02d.%02d.%02d.%02d.%s.%s.%s.%s.SAC',...
+fname = sprintf('%i.%02d.%02d.%02d.%02d.%02d.%s.%s.%s.%s.%i.SAC',...
                 sacmat.hdr.nzyear,month(datetime(startTime)),...
                 day(datetime(startTime)),sacmat.hdr.nzhour,...
                 sacmat.hdr.nzmin,sacmat.hdr.nzsec,trace.network,...
-                trace.station,trace.location,trace.channel);
+                trace.station,trace.location,trace.channel,pzIndex);
    
 % Save the data to a SAC file
 fwrite_sac(sacmat,fullfile(directory,fname));
