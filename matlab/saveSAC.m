@@ -14,10 +14,18 @@ function saveSAC(trace,startTime,directory,varargin)
 % Optional Variables:
 % event     - event structure containing information about the
 %             earthquake that seismic data potentially pertains to
+% pz        - index to append to SAC filename to indicate relationnship
+%             to a corresponding PZ (poles and zeros) file
+%
+%---External Dependencies--------------------------------------------------
+% F_SAC: fwrite_sac
+% MatTauP: tauptime
 %
 %--------------------------------------------------------------------------
-% Last updated 11/25/2019 by aburky@princeton.edu
+% Last updated 11/30/2019 by aburky@princeton.edu
 %--------------------------------------------------------------------------
+
+% To do: Add some error handling...
 
 % SAC timeseries data
 sacmat.data = trace.data;
@@ -65,6 +73,32 @@ if nargin > 3
             [sacmat.hdr.gcarc,sacmat.hdr.az] = distance(sacmat.hdr.evla,...
             sacmat.hdr.evlo,sacmat.hdr.stla,sacmat.hdr.stlo);
             sacmat.hdr.dist = deg2km(sacmat.hdr.gcarc);
+            % If the user is saving event data, also save P arrival time
+            tt = tauptime('mod','iasp91','deg',sacmat.hdr.gcarc,'dep',...
+                            sacmat.hdr.evdp,'ph','P');
+            % Save P arrival time
+            sacmat.hdr.t(1) = tt.time;
+            % Fill extraneous header values
+            sacmat.hdr.t(2) = -12345;
+            sacmat.hdr.t(3) = -12345;
+            sacmat.hdr.t(4) = -12345;
+            sacmat.hdr.t(5) = -12345;
+            sacmat.hdr.t(6) = -12345;
+            sacmat.hdr.t(7) = -12345;
+            sacmat.hdr.t(8) = -12345;
+            sacmat.hdr.t(9) = -12345;
+            sacmat.hdr.t(10) = -12345;
+            % Save P wave ray parameter
+            sacmat.hdr.user(1) = -12345;
+            sacmat.hdr.user(2) = -12345;
+            sacmat.hdr.user(3) = -12345;
+            sacmat.hdr.user(4) = -12345;
+            sacmat.hdr.user(5) = -12345;
+            sacmat.hdr.user(6) = -12345;
+            sacmat.hdr.user(7) = -12345;
+            sacmat.hdr.user(8) = -12345;
+            sacmat.hdr.user(9) = -12345;
+            sacmat.hdr.user(10) = tt.rayparameter;
         % User wants to save PZ Index
         elseif strcmp(varargin{i},'pz')
             pzIndex = varargin{i+1};

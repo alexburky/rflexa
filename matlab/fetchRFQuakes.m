@@ -7,13 +7,17 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 11/25/2020 by aburky@princeton.edu
+% Last updated 11/30/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-% To do: Add the option to include the P arrival time to the saved data
-%   using MatTauP
+% Next step: Write a function which removes the instrument response
+%            entirely within MATLAB. Inject this function into a receiver
+%            function workflow.
 
 clear,clc
+
+% Define the directory where you would like to save the data
+sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
 
 % Define the network, station that you would like to fetch data for
 network = 'TA';
@@ -31,9 +35,40 @@ maxRad = 90;
 
 ch = irisFetch.Channels('RESPONSE',network,station,location,channel);
 
+% Loop over each channel and make the PZ file
+for i = 1:length(ch)
+    % Get the channel start and end dates
+    t1 = ch(i).StartDate;
+    t2 = ch(i).EndDate;
+    % Save the PZ file
+    savePZ(ch(i),sacDir,'pz',i);
+    % While we are iterating over the channel, check for earthquakes
+    % that meet our search criterion during its operation
+    donut = [ch(i).Latitude,ch(i).Longitude,maxRad,minRad];
+    ev = irisFetch.Events('MinimumMagnitude',minMag,'MaximumMagnitude',...
+            maxMag,'radialcoordinates',donut,'startTime',t1,...
+            'endTime',t2);
+        
+    % Loop over each event, get the trace for the channel, and save
+    for j = 1:length(ev)
+        % Get start time of event
+        ev_start = ev(j).PreferredTime;
+        timeFormat = 'yyyy-mm-dd HH:MM:SS.FFF';
+        ev_end = datetime(ev_start) + hours(1);
+        ev_end = datestr(ev_end,timeFormat);
+        % Fetch trace data from the current channel
+        tr = irisFetch.Traces(network,station,location,...
+                ch(i).ChannelCode,ev_start,ev_end);
+        % Save the trace data to a SAC file
+        saveSAC(tr,ev_start,sacDir,'event',ev(j),'pz',i);
+    end
+end
+
 % Options to add:
-% - Directory where you would like to save the output data
-% - RESP, or PZ files?
+% - RESP files? (saveRESP function)
+% Note:
+% Working with the RESP files is a bit hairy, for negligible difference
+% in results. For the time being, do everything with PZ files.
 
 % % Loop over each channel and get the RESP file
 % for i = 1:length(ch)
@@ -51,69 +86,6 @@ ch = irisFetch.Channels('RESPONSE',network,station,location,channel);
 %     fprintf(fID,re);
 %     fclose(fID);
 % end
-
-% Loop over each channel and make the PZ file
-for i = 1:length(ch)
-    % Get the channel start and end dates
-    t1 = ch(i).StartDate;
-    t2 = ch(i).EndDate;
-    % Get the poles, zeros, and constant
-    z = ch(i).Response.Stage(1).PolesZeros.Zero;
-    p = ch(i).Response.Stage(1).PolesZeros.Pole;
-    k = double(ch(i).Response.Stage(1).PolesZeros.NormalizationFactor)*...
-        double(ch(i).Response.InstrumentSensitivity.Value);
-    % Format the PZ filename
-    if isempty(ch(i).LocationCode)
-        pzFile = sprintf('SAC_PZs_%s_%s_%s.%d',network,station,...
-                 ch(i).ChannelCode,i);
-    else
-        pzFile = sprintf('SAC_PZs_%s_%s_%s_%s.%d',network,station,...
-                 ch(i).ChannelCode,ch(i).LocationCode,i);
-    end
-    % Save data to the PZ file
-    fID = fopen(pzFile,'w');
-    % Write the start and end dates
-    fprintf(fID,sprintf('* Start date: %s\n',t1));
-    fprintf(fID,sprintf('* End date:   %s\n',t2));
-    % Save the poles, zeros, and constant
-    fprintf(fID,sprintf('ZEROS %d\n',length(z)));
-    for j = 1:length(z)
-        fprintf(fID,sprintf('%+e %+e\n',real(z(j)),imag(z(j))));
-    end
-    fprintf(fID,sprintf('POLES %d\n',length(p)));
-    for j = 1:length(p)
-        fprintf(fID,sprintf('%+e %+e\n',real(p(j)),imag(p(j))));
-    end
-    fprintf(fID,sprintf('CONSTANT %e',k));
-    fclose(fID);
-    
-    % While we are iterating over the channel, check for earthquakes
-    % that meet our search criterion during its operation
-    donut = [ch(i).Latitude,ch(i).Longitude,maxRad,minRad];
-    ev = irisFetch.Events('MinimumMagnitude',minMag,'MaximumMagnitude',...
-            maxMag,'radialcoordinates',donut,'startTime',t1,...
-            'endTime',t2);
-        
-    % Loop over each event, get the trace for the channel, and save
-    for j = 1:length(ev)
-        % Get start time of event
-        ev_start = ev(j).PreferredTime;
-        timeFormat = 'yyyy-mm-dd HH:MM:SS.FFF';
-        ev_end = datetime(ev_start) + hours(1);
-        ev_end = datestr(ev_end,timeFormat);
-        
-        % Fetch data from the current channel
-        tr = irisFetch.Traces(network,station,location,...
-                ch(i).ChannelCode,ev_start,ev_end);
-            
-        % Save the data to a SAC file
-        sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
-        saveSAC(tr,ev_start,sacDir,'event',ev,'pz',i);
-    end
-end
-
-% Once you have the poles and zeros files, fetch some earthquake data!
-
 
 %%
 
@@ -167,19 +139,6 @@ fclose(fID);
 
 % End date of one channel is equal to the start date of the next.
 % what to do about this?
-
-%% Sort out some date time logic here
-
-t2 = datetime(t1) + milliseconds(1);
-formatOut = 'yyyy-mm-dd HH:MM:SS.FFF';
-t2 = datestr(t2,formatOut);
-
-%% Calculate the poles zeros constant?
-
-z = ch(1).Response.Stage(1).PolesZeros.Zero;
-p = ch(1).Response.Stage(1).PolesZeros.Pole;
-k = double(ch(1).Response.Stage(1).PolesZeros.NormalizationFactor) * ...
-    double(ch(1).Response.InstrumentSensitivity.Value);
 
 %% Make Bode plots
 

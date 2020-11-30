@@ -1,4 +1,4 @@
-function savePZ(channel,directory)
+function savePZ(channel,directory,varargin)
 % SAVEPZ Constructs and saves a SAC_PZs poles and zeros file from a
 %        channel structure.
 %
@@ -10,12 +10,15 @@ function savePZ(channel,directory)
 %             irisFetch.Channels('RESPONSE'))
 % directory - string of the folder where you would like to save the file
 %
+% Optional Variables:
+% pz        - index to append to PZ filename to indicate relationship to
+%             corresponding SAC files
+%
 %--------------------------------------------------------------------------
-% Last updated 11/15/2019 by aburky@princeton.edu
+% Last updated 11/30/2019 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-% TO DO: Optional argument, if you are looping over many channels,
-%        tag the PZ file with a number indicating its time period
+% To do: Add some error handling...
 
 % Get the poles, zeros, and constant
 z = channel.Response.Stage(1).PolesZeros.Zero;
@@ -30,6 +33,12 @@ if isempty(channel.LocationCode)
 else
     pzFile = sprintf('SAC_PZs_%s_%s_%s_%s',channel.NetworkCode,...
              channel.StationCode,channel.ChannelCode,channel.LocationCode);
+end
+if nargin > 2
+    if strcmp(varargin{1},'pz')
+        pzIndex = varargin{2};
+        pzFile = sprintf('%s.%i',pzFile,pzIndex);
+    end
 end
 
 % Save the data to the PZ file

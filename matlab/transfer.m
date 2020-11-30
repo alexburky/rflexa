@@ -20,8 +20,11 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 10/27/2020 by aburky@princeton.edu
+% Last updated 11/30/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
+
+% To do: Explicitly handle the 'displacement', 'velocity', and
+% 'acceleration' options!
 
 % Do some input validation...
 if length(freqlimits) ~= 4
