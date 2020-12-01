@@ -7,7 +7,7 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 11/30/2020 by aburky@princeton.edu
+% Last updated 12/01/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % Next step: Write a function which removes the instrument response
@@ -20,12 +20,15 @@ clear,clc
 sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
 
 % Define the network, station that you would like to fetch data for
-network = 'TA';
-station = 'O61A';
-% network = 'II';
-% station = 'SACV';
-location = '*';
-channel = 'BH*';
+% network = 'TA';
+% station = 'O61A';
+% location = '*';
+% channel = 'BH*';
+
+network = 'II';
+station = 'SACV';
+location = '10';
+channel = 'BHZ';
 
 % Define desired earthquake parameters
 minMag = 7.0;
@@ -40,6 +43,11 @@ for i = 1:length(ch)
     % Get the channel start and end dates
     t1 = ch(i).StartDate;
     t2 = ch(i).EndDate;
+    if isempty(t2)
+        dtLocal = datetime('now','TimeZone','Local');
+        t2 = datestr(datetime(dtLocal,'TimeZone','Z'),...
+            'yyyy-mm-dd HH:MM:SS.FFF');
+    end
     % Save the PZ file
     savePZ(ch(i),sacDir,'pz',i);
     % While we are iterating over the channel, check for earthquakes
@@ -60,7 +68,9 @@ for i = 1:length(ch)
         tr = irisFetch.Traces(network,station,location,...
                 ch(i).ChannelCode,ev_start,ev_end);
         % Save the trace data to a SAC file
-        saveSAC(tr,ev_start,sacDir,'event',ev(j),'pz',i);
+        if ~isempty(tr)
+            saveSAC(tr,ev_start,sacDir,'event',ev(j),'pz',i);
+        end
     end
 end
 

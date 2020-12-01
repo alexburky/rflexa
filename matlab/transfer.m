@@ -20,7 +20,7 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 11/30/2020 by aburky@princeton.edu
+% Last updated 12/01/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Explicitly handle the 'displacement', 'velocity', and
@@ -41,7 +41,24 @@ if sum(strcmp(units,{'displacement','velocity','acceleration'})) == 0
 end
 
 % Get the poles, zeros, and constant
+disp('Time to parse PZ file:')
+tic
 [z,p,k] = parsePZ(pzfile);
+toc
+
+% z
+
+% Check if the user wants displacement, velocity, or acceleration
+% nzeros = length(z) - nnz(z);
+
+z = nonzeros(z);
+if strcmp(units,'displacement')
+    z = [complex(0,0); complex(0,0); complex(0,0); z];
+elseif strcmp(units,'velocity')
+    z = [complex(0,0); complex(0,0); z];
+elseif strcmp(units,'acceleration')
+    z = [complex(0,0); z];
+end
 
 % Displacement option: 3 zeros
 % Velocity option:     2 zeros
@@ -55,11 +72,16 @@ nfreq = (nfft/2) + 1;
 nyq = (1/delta)*0.5;
 
 % Construct the transfer function from the poles and zeros
+disp('Time to construct transfer function:')
+tic
 f = linspace(0,nyq,nfreq);
 [b,a] = zp2tf(z,p,k);
 [h,w] = freqs(b,a,2*pi*f);
+toc
 
 % Invert the transfer function
+disp('Time to invert transfer function:')
+tic
 for i = 2:nfreq
     denr = real(h(i))^2 + imag(h(i))^2;
     denr = 1.0/denr;
@@ -69,6 +91,7 @@ for i = 2:nfreq
         h(i) = complex(real(h(i))*denr,-imag(h(i))*denr);
     end
 end
+toc
 
 % Apply the cosine filter (make this a function?)
 for i = 2:nfreq
@@ -91,6 +114,8 @@ end
 data_fft = fft(data,nfft);
 
 % Multiply Fourier transformed data by the inverted transfer function
+disp('Time to multiply spectra:')
+tic
 for i = 2:nfreq
     tempR = real(h(i))*real(data_fft(i)) - imag(h(i))*imag(data_fft(i));
     tempI = real(h(i))*imag(data_fft(i)) + imag(h(i))*real(data_fft(i));
@@ -107,6 +132,7 @@ data_fft(1) = complex(0,0);
 data_fft(nfft) = complex(sqrt(real(data_fft(nfft))*...
                  real(data_fft(nfft)) + imag(data_fft(nfft))*...
                  imag(data_fft(nfft))),0);
+toc
              
 % Transform back into the time domain
 data = ifft(data_fft,nfft);

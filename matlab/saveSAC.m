@@ -22,7 +22,7 @@ function saveSAC(trace,startTime,directory,varargin)
 % MatTauP: tauptime
 %
 %--------------------------------------------------------------------------
-% Last updated 11/30/2019 by aburky@princeton.edu
+% Last updated 12/01/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add some error handling...
