@@ -1,4 +1,4 @@
-function savePZ(channel,directory,varargin)
+function savePZ(channel,sacpz,directory,varargin)
 % SAVEPZ Constructs and saves a SAC_PZs poles and zeros file from a
 %        channel structure.
 %
@@ -8,10 +8,13 @@ function savePZ(channel,directory,varargin)
 % channel   - channel structure containing all of the relevant poles and
 %             zeros information (specifically, one output by 
 %             irisFetch.Channels('RESPONSE'))
+% sacpz     - polezero structure containing the SAC specific poles and
+%             zeros information (output by irisFetch.Traces with
+%             'includePZ' flag set)
 % directory - string of the folder where you would like to save the file
 %
 % Optional Variables:
-% pz        - index to append to PZ filename to indicate relationship to
+% pzindex   - index to append to PZ filename to indicate relationship to
 %             corresponding SAC files
 %
 %--------------------------------------------------------------------------
@@ -21,10 +24,13 @@ function savePZ(channel,directory,varargin)
 % To do: Add some error handling...
 
 % Get the poles, zeros, and constant
-z = channel.Response.Stage(1).PolesZeros.Zero;
-p = channel.Response.Stage(1).PolesZeros.Pole;
-k = double(channel.Response.Stage(1).PolesZeros.NormalizationFactor)*...
-    double(channel.Response.InstrumentSensitivity.Value);
+% z = channel.Response.Stage(1).PolesZeros.Zero;
+% p = channel.Response.Stage(1).PolesZeros.Pole;
+% k = double(channel.Response.Stage(1).PolesZeros.NormalizationFactor)*...
+%     double(channel.Response.InstrumentSensitivity.Value);
+z = sacpz.zeros;
+p = sacpz.poles;
+k = sacpz.constant;
 
 % Format the PZ file name
 if isempty(channel.LocationCode)
@@ -35,7 +41,7 @@ else
              channel.StationCode,channel.ChannelCode,channel.LocationCode);
 end
 if nargin > 2
-    if strcmp(varargin{1},'pz')
+    if strcmp(varargin{1},'pzindex')
         pzIndex = varargin{2};
         pzFile = sprintf('%s.%i',pzFile,pzIndex);
     end
@@ -68,7 +74,7 @@ fprintf(fID,sprintf('* LATITUDE          : %0.6f\n',channel.Latitude));
 fprintf(fID,sprintf('* LONGITUDE         : %0.6f\n',channel.Longitude));
 fprintf(fID,sprintf('* ELEVATION         : %0.1f\n',channel.Elevation));
 fprintf(fID,sprintf('* DEPTH             : %0.1f\n',channel.Depth));
-fprintf(fID,sprintf('* DIP               : %0.1f\n',abs(channel.Dip)-90));
+fprintf(fID,sprintf('* DIP               : %0.1f\n',90-abs(channel.Dip)));
 fprintf(fID,sprintf('* AZIMUTH           : %0.1f\n',channel.Azimuth));
 fprintf(fID,sprintf('* SAMPLE RATE       : %0.1f\n',channel.SampleRate));
 fprintf(fID,sprintf('* INPUT UNIT        : M\n'));
@@ -81,7 +87,7 @@ fprintf(fID,sprintf('* COMMENT           : \n'));
 fprintf(fID,sprintf('* SENSITIVITY       : %0.6e (M/S)\n',...
     channel.Response.InstrumentSensitivity.Value));
 fprintf(fID,sprintf('* A0                : %0.6e \n',...
-    channel.Response.Stage(1).PolesZeros.NormalizationFactor));
+    (k/str2double(channel.Response.InstrumentSensitivity.Value))));
 fprintf(fID,sprintf('* **********************************\n'));
 
 % Save the poles, zeros, and constant

@@ -14,6 +14,10 @@
 %            entirely within MATLAB. Inject this function into a receiver
 %            function workflow.
 
+% Can only get the true SACPZ data from a trace object, so...
+% For each channel, retrieve a single trace object and construct
+% the pz file from the trace object AND the channel object
+
 clear,clc
 
 % Define the directory where you would like to save the data
@@ -38,6 +42,8 @@ maxRad = 90;
 
 ch = irisFetch.Channels('RESPONSE',network,station,location,channel);
 
+timeFormat = 'yyyy-mm-dd HH:MM:SS.FFF';
+
 % Loop over each channel and make the PZ file
 for i = 1:length(ch)
     % Get the channel start and end dates
@@ -48,8 +54,33 @@ for i = 1:length(ch)
         t2 = datestr(datetime(dtLocal,'TimeZone','Z'),...
             'yyyy-mm-dd HH:MM:SS.FFF');
     end
+    
+    % Get the PZ data by fetching a trace object
+    
+    % Need to recursively call a function here, check if there is trace
+    % data within the channel operation period, if not, iterate time
+    startChan = t1;
+    endChan = datetime(t1) + hours(0.5);
+    endChan = datestr(endChan,timeFormat);
+    looping = 1;
+    while looping == 1
+        tr = irisFetch.Traces(network,station,location,...
+                ch(i).ChannelCode,startChan,endChan,'includePZ');
+        if isempty(tr)
+            startChan = datetime(startChan) + days(1);
+            startChan = datestr(startChan,timeFormat);
+            endChan = datetime(startChan) + hours(0.5);
+            endChan = datestr(endChan,timeFormat);
+        else
+            pz(i) = tr.sacpz;
+            looping = 0;
+        end
+    end
+
+    % pz(i) = tr.sacpz;
+    
     % Save the PZ file
-    savePZ(ch(i),sacDir,'pz',i);
+    savePZ(ch(i),pz(i),sacDir,'pzindex',i);
     % While we are iterating over the channel, check for earthquakes
     % that meet our search criterion during its operation
     donut = [ch(i).Latitude,ch(i).Longitude,maxRad,minRad];
@@ -61,7 +92,6 @@ for i = 1:length(ch)
     for j = 1:length(ev)
         % Get start time of event
         ev_start = ev(j).PreferredTime;
-        timeFormat = 'yyyy-mm-dd HH:MM:SS.FFF';
         ev_end = datetime(ev_start) + hours(1);
         ev_end = datestr(ev_end,timeFormat);
         % Fetch trace data from the current channel
