@@ -20,7 +20,7 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 12/01/2020 by aburky@princeton.edu
+% Last updated 12/02/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Explicitly handle the 'displacement', 'velocity', and
