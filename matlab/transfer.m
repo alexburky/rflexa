@@ -26,6 +26,9 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 % To do: Explicitly handle the 'displacement', 'velocity', and
 % 'acceleration' options!
 
+disp('Time to execute transfer:')
+tic
+
 % Do some input validation...
 if length(freqlimits) ~= 4
     error(['Incorrect size of parameter ''freqlimits''',newline,...
@@ -41,16 +44,9 @@ if sum(strcmp(units,{'displacement','velocity','acceleration'})) == 0
 end
 
 % Get the poles, zeros, and constant
-disp('Time to parse PZ file:')
-tic
 [z,p,k] = parsePZ(pzfile);
-toc
-
-% z
 
 % Check if the user wants displacement, velocity, or acceleration
-% nzeros = length(z) - nnz(z);
-
 z = nonzeros(z);
 if strcmp(units,'displacement')
     z = [complex(0,0); complex(0,0); complex(0,0); z];
@@ -60,10 +56,6 @@ elseif strcmp(units,'acceleration')
     z = [complex(0,0); z];
 end
 
-% Displacement option: 3 zeros
-% Velocity option:     2 zeros
-% Acceleration option: 1 zero
-
 % FFT parameters
 npts = length(data);
 nfft = 2^nextpow2(npts);
@@ -72,16 +64,11 @@ nfreq = (nfft/2) + 1;
 nyq = (1/delta)*0.5;
 
 % Construct the transfer function from the poles and zeros
-disp('Time to construct transfer function:')
-tic
 f = linspace(0,nyq,nfreq);
 [b,a] = zp2tf(z,p,k);
 [h,w] = freqs(b,a,2*pi*f);
-toc
 
 % Invert the transfer function
-disp('Time to invert transfer function:')
-tic
 for i = 2:nfreq
     denr = real(h(i))^2 + imag(h(i))^2;
     denr = 1.0/denr;
@@ -91,7 +78,6 @@ for i = 2:nfreq
         h(i) = complex(real(h(i))*denr,-imag(h(i))*denr);
     end
 end
-toc
 
 % Apply the cosine filter (make this a function?)
 for i = 2:nfreq
@@ -110,31 +96,20 @@ for i = 2:nfreq
     h(i) = h(i) * fac;
 end
 
-% Fourier transform the data
+% Take the Fourier transform of the data
 data_fft = fft(data,nfft);
 
 % Multiply Fourier transformed data by the inverted transfer function
-disp('Time to multiply spectra:')
-tic
-for i = 2:nfreq
-    tempR = real(h(i))*real(data_fft(i)) - imag(h(i))*imag(data_fft(i));
-    tempI = real(h(i))*imag(data_fft(i)) + imag(h(i))*real(data_fft(i));
-    data_fft(i) = complex(tempR,tempI);
-    
-    if i < (nfreq)
-        j = nfft - i + 2;
-        data_fft(j) = complex(tempR,-tempI);
-    end
-end
+data_fft(1:nfreq) = data_fft(1:nfreq).*transpose(h(1:nfreq));
+data_fft((nfreq+1):end) = conj(flipud(data_fft(2:(nfreq-1))));
 
 data_fft(1) = complex(0,0);
-
-data_fft(nfft) = complex(sqrt(real(data_fft(nfft))*...
-                 real(data_fft(nfft)) + imag(data_fft(nfft))*...
-                 imag(data_fft(nfft))),0);
-toc
+data_fft(nfft) = complex(sqrt(real(data_fft(nfft))*real(data_fft(nfft))...
+                    + imag(data_fft(nfft))*imag(data_fft(nfft))),0);
              
 % Transform back into the time domain
 data = ifft(data_fft,nfft);
 
 data = data(1:npts);
+
+toc

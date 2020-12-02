@@ -24,15 +24,15 @@ clear,clc
 sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
 
 % Define the network, station that you would like to fetch data for
-% network = 'TA';
-% station = 'O61A';
-% location = '*';
-% channel = 'BH*';
+network = 'TA';
+station = 'O61A';
+location = '*';
+channel = 'BH*';
 
-network = 'II';
-station = 'SACV';
-location = '10';
-channel = 'BHZ';
+% network = 'II';
+% station = 'SACV';
+% location = '10';
+% channel = 'BHZ';
 
 % Define desired earthquake parameters
 minMag = 7.0;
