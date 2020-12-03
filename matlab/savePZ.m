@@ -18,7 +18,7 @@ function savePZ(channel,sacpz,directory,varargin)
 %             corresponding SAC files
 %
 %--------------------------------------------------------------------------
-% Last updated 12/02/2020 by aburky@princeton.edu
+% Last updated 12/03/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add some error handling...
