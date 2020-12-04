@@ -96,17 +96,31 @@ def fetch_rf_data(network, location, channel, data_directory, output_units, mini
                 pzFile.write('* STATION    (KSTNM): ' + inv.networks[0].stations[i].code + '\n')
                 pzFile.write('* LOCATION   (KHOLE): ' + inv.networks[0].stations[i].channels[j].location_code + '\n')
                 pzFile.write('* CHANNEL   (KCMPNM): ' + inv.networks[0].stations[i].channels[j].code + '\n')
-                pzFile.write('* CREATED           : ' + '\n')
+                pzFile.write('* CREATED           : ' + str(UTCDateTime.now()).split('.')[0] + '\n')
                 pzFile.write('* START             : ' +
                              str(inv.networks[0].stations[i].channels[j].start_date).split('.')[0] + '\n')
                 pzFile.write('* END               : ' +
                              str(inv.networks[0].stations[i].channels[j].end_date).split('.')[0] + '\n')
-
-                pzFile.write('* SENSITIVITY       : ' +
-                             str(inv.networks[0].stations[i].channels[j].response.instrument_sensitivity.value) + '\n')
-                pzFile.write('* A0                : ' +
-                             str(inv.networks[0].stations[i].channels[j].response.get_paz().normalization_factor) +
-                             '\n')
+                pzFile.write('* DESCRIPTION       : ' + inv.networks[0].stations[i].site.name + '\n')
+                pzFile.write('* LATITUDE          : %0.6f\n' % inv.networks[0].stations[i].latitude)
+                pzFile.write('* LONGITUDE         : %0.6f\n' % inv.networks[0].stations[i].longitude)
+                pzFile.write('* ELEVATION         : %0.1f\n' % inv.networks[0].stations[i].channels[j].elevation)
+                pzFile.write('* DEPTH             : %0.1f\n' % inv.networks[0].stations[i].channels[j].depth)
+                pzFile.write('* DIP               : %0.1f\n' %
+                             (90.0 - np.abs(inv.networks[0].stations[i].channels[j].dip)))
+                pzFile.write('* AZIMUTH           : %0.1f\n' % inv.networks[0].stations[i].channels[j].azimuth)
+                pzFile.write('* SAMPLE RATE       : %0.1f\n' % inv.networks[0].stations[i].channels[j].sample_rate)
+                pzFile.write('* INPUT UNIT        : M\n')
+                pzFile.write('* OUTPUT UNIT       : COUNTS\n')
+                pzFile.write('* INSTTYPE          : ' +
+                             inv.networks[0].stations[i].channels[j].sensor.description +'\n')
+                pzFile.write('* INSTGAIN          : %e (M/S)\n' %
+                             inv.networks[0].stations[i].channels[j].response.get_paz().stage_gain)
+                pzFile.write('* COMMENT           : \n')
+                pzFile.write('* SENSITIVITY       : %e (M/S)\n' %
+                             inv.networks[0].stations[i].channels[j].response.instrument_sensitivity.value)
+                pzFile.write('* A0                : %e\n' %
+                             inv.networks[0].stations[i].channels[j].response.get_paz().normalization_factor)
                 pzFile.write('* **********************************\n')
 
                 # Save the poles, zeros, and constant
@@ -114,17 +128,17 @@ def fetch_rf_data(network, location, channel, data_directory, output_units, mini
                 zeros = inv.networks[0].stations[i].channels[j].response.get_paz().zeros
                 nz = np.nonzero(zeros)
                 pzFile.write('ZEROS   ' + str(len(nz[0]) + nzeros) + '\n')
-                pzFile.write("%+e   %+e\n" % (0, 0))
-                pzFile.write("%+e   %+e\n" % (0, 0))
-                pzFile.write("%+e   %+e\n" % (0, 0))
+                pzFile.write("        %+e   %+e\n" % (0, 0))
+                pzFile.write("        %+e   %+e\n" % (0, 0))
+                pzFile.write("        %+e   %+e\n" % (0, 0))
                 if len(nz[0]) != 0:
                     for k in range(0, len(nz[0])):
-                        pzFile.write("%+e   %+e\n" % (np.real(zeros[nz[0][k]]), np.imag(zeros[nz[0][k]])))
+                        pzFile.write("        %+e   %+e\n" % (np.real(zeros[nz[0][k]]), np.imag(zeros[nz[0][k]])))
 
                 poles = inv.networks[0].stations[i].channels[j].response.get_paz().poles
                 pzFile.write('POLES   ' + str(len(poles)) + '\n')
                 for k in range(0, len(poles)):
-                    pzFile.write("%+e   %+e\n" %
+                    pzFile.write("        %+e   %+e\n" %
                                  (np.real(inv.networks[0].stations[i].channels[j].response.get_paz().poles[k]),
                                   np.imag(inv.networks[0].stations[i].channels[j].response.get_paz().poles[k])))
 
