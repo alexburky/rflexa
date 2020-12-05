@@ -144,11 +144,28 @@ def transfer(data, delta, freq_limits, units, pz_file):
             if c_string in line:
                 c_line = num
 
-    z = np.loadtxt(pz_file, skiprows=z_line, max_rows=(p_line - z_line - 1))
-    z = z.view(np.complex)
+    zeros = np.loadtxt(pz_file, skiprows=z_line, max_rows=(p_line - z_line - 1))
+    zeros = zeros.view(np.complex)
     p = np.loadtxt(pz_file, skiprows=p_line, max_rows=(c_line - p_line - 1))
     p = p.view(np.complex)
     k = np.loadtxt(pz_file, skiprows=(c_line - 1), usecols=1)
+
+    # Construct zeros array based on desired output units
+    nz = np.nonzero(zeros)
+    if units == 'displacement':
+        z = np.array([[0j], [0j], [0j]])
+    elif units == 'velocity':
+        z = np.array([[0j], [0j]])
+    elif units == 'acceleration':
+        z = np.array([[0j]])
+    else:
+        print('Error: Currently accepted output units are displacement, velocity, or acceleration')
+
+    if len(nz[0]) != 0:
+        for i in range(0, len(nz[0])):
+            z = np.append(z, zeros[nz[0][i]])
+
+    print(z)
 
     # FFT parameters
     npts = len(data)
@@ -163,7 +180,7 @@ def transfer(data, delta, freq_limits, units, pz_file):
 
     # Construct frequency grid
     f = np.linspace(0, 20, nfreq)
-    f = 2 * np.pi * f
+    omega = 2 * np.pi * f
 
     # Convert arrays to lists
     z = list(z.flatten())
@@ -171,7 +188,7 @@ def transfer(data, delta, freq_limits, units, pz_file):
 
     # Construct the transfer function from the poles, zeros, and constant
     t_function = signal.ZerosPolesGain(z, p, k)
-    w, h = signal.freqresp(t_function, f)
+    w, h = signal.freqresp(t_function, omega)
 
     # Invert the transfer function spectrum
     denr[1:] = 1.0 / (pow(h[1:].real, 2) + pow(h[1:].imag, 2))
