@@ -16,7 +16,7 @@ import time
 # scripts.
 #
 # --------------------------------------------------------------------------------------------------------------
-# Last updated 12/04/2020 by aburky@princeton.edu
+# Last updated 12/05/2020 by aburky@princeton.edu
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -49,7 +49,9 @@ def fetch_rf_data(network, location, channel, data_directory, output_units, mini
 
     # For now: delete the directory if it exists...
     if os.path.exists(sac_dir):
-        shutil.rmtree(sac_dir)
+        print('Directory exists. Terminiating process...')
+        quit()
+        # shutil.rmtree(sac_dir)
 
     if not os.path.exists(sac_dir):
         os.makedirs(sac_dir)
