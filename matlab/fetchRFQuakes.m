@@ -7,7 +7,7 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 12/01/2020 by aburky@princeton.edu
+% Last updated 12/05/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % Next step: Write a function which removes the instrument response
