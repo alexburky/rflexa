@@ -4,7 +4,7 @@ from scipy import signal
 
 # This file contains various functions which can be used for routine seismic data processing.
 # ---------------------------------------------------------------------------------------------
-# Last updated 10/29/2020 by aburky@princeton.edu
+# Last updated 12/05/2020 by aburky@princeton.edu
 # ---------------------------------------------------------------------------------------------
 
 
@@ -202,9 +202,9 @@ def transfer(data, delta, freq_limits, units, pz_file):
 
     # Move the construction of the cosine filter to a different function!
     cosine_filter = np.zeros(nfreq, dtype=float)
-    idx = np.where(f < 0.002)
+    idx = np.where(f < f1)
     cosine_filter[idx] = 0.0
-    idx = np.where(np.logical_and(f >= 0.002, f <= 0.004))
+    idx = np.where(np.logical_and(f >= f1, f <= f2))
     cosine_filter[idx] = 0.5 * (1 - np.cos(np.pi * (f[idx] - f1) / (f2 - f1)))
     idx = np.where(np.logical_and(f > f2, f < f3))
     cosine_filter[idx] = 1.0
