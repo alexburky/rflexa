@@ -20,14 +20,8 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 12/02/2020 by aburky@princeton.edu
+% Last updated 12/08/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
-
-% To do: Explicitly handle the 'displacement', 'velocity', and
-% 'acceleration' options!
-
-disp('Time to execute transfer:')
-tic
 
 % Do some input validation...
 if length(freqlimits) ~= 4
@@ -111,5 +105,3 @@ data_fft(nfft) = complex(sqrt(real(data_fft(nfft))*real(data_fft(nfft))...
 data = ifft(data_fft,nfft);
 
 data = data(1:npts);
-
-toc
