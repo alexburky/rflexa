@@ -20,7 +20,7 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 12/08/2020 by aburky@princeton.edu
+% Last updated 12/09/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % Do some input validation...
