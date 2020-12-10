@@ -18,7 +18,7 @@ function savePZ(channel,sacpz,directory,varargin)
 %             corresponding SAC files
 %
 %--------------------------------------------------------------------------
-% Last updated 12/03/2020 by aburky@princeton.edu
+% Last updated 12/10/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add some error handling...
@@ -95,15 +95,15 @@ nzeros = 3;
 z = nonzeros(z);
 % Use the IRIS convention of not saving zeros equal to (0,0)
 fprintf(fID,sprintf('ZEROS   %d\n',length(z) + nzeros));
-fprintf(fID,sprintf('%+e %+e\n',0.0,0.0));
-fprintf(fID,sprintf('%+e %+e\n',0.0,0.0));
-fprintf(fID,sprintf('%+e %+e\n',0.0,0.0));
+fprintf(fID,sprintf('        %+e   %+e\n',0.0,0.0));
+fprintf(fID,sprintf('        %+e   %+e\n',0.0,0.0));
+fprintf(fID,sprintf('        %+e   %+e\n',0.0,0.0));
 for i = 1:length(z)
-    fprintf(fID,sprintf('%+e %+e\n',real(z(i)),imag(z(i))));
+    fprintf(fID,sprintf('        %+e   %+e\n',real(z(i)),imag(z(i))));
 end
 fprintf(fID,sprintf('POLES   %d\n',length(p)));
 for i = 1:length(p)
-    fprintf(fID,sprintf('%+e %+e\n',real(p(i)),imag(p(i))));
+    fprintf(fID,sprintf('        %+e   %+e\n',real(p(i)),imag(p(i))));
 end
 fprintf(fID,sprintf('CONSTANT        %e',k));
 fclose(fID);
