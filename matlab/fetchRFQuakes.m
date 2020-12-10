@@ -7,32 +7,24 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 12/05/2020 by aburky@princeton.edu
+% Last updated 12/10/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
-
-% Next step: Write a function which removes the instrument response
-%            entirely within MATLAB. Inject this function into a receiver
-%            function workflow.
-
-% Can only get the true SACPZ data from a trace object, so...
-% For each channel, retrieve a single trace object and construct
-% the pz file from the trace object AND the channel object
 
 clear,clc
 
 % Define the directory where you would like to save the data
 sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
 
-% Define the network, station that you would like to fetch data for
-network = 'TA';
-station = 'O61A';
-location = '*';
-channel = 'BH*';
+% Define the network/station that you would like to fetch data for
+% network = 'TA';
+% station = 'O61A';
+% location = '*';
+% channel = 'BH*';
 
-% network = 'II';
-% station = 'SACV';
-% location = '10';
-% channel = 'BHZ';
+network = 'II';
+station = 'SACV';
+location = '10';
+channel = 'BHZ';
 
 % Define desired earthquake parameters
 minMag = 7.0;
@@ -55,10 +47,9 @@ for i = 1:length(ch)
             'yyyy-mm-dd HH:MM:SS.FFF');
     end
     
-    % Get the PZ data by fetching a trace object
-    
-    % Need to recursively call a function here, check if there is trace
-    % data within the channel operation period, if not, iterate time
+    % Fetch 30 minutes of data from the station to get the Pole/Zero
+    % information. If the request returns empty, update the time window
+    % and try again
     startChan = t1;
     endChan = datetime(t1) + hours(0.5);
     endChan = datestr(endChan,timeFormat);
@@ -76,8 +67,6 @@ for i = 1:length(ch)
             looping = 0;
         end
     end
-
-    % pz(i) = tr.sacpz;
     
     % Save the PZ file
     savePZ(ch(i),pz(i),sacDir,'pzindex',i);
