@@ -8,7 +8,7 @@
 % as well as some parameters controlling the resulting receiver functions
 
 %--------------------------------------------------------------------------
-% Last updated 12/10/2020 by aburky@princeton.edu
+% Last updated 12/11/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -153,3 +153,11 @@ toc
 %% ------------------------------------------------------------------------
 % Pre-Process Data: Cut, Taper, and Optionally Filter
 % -------------------------------------------------------------------------
+
+% First, optionally filter data
+
+% Second, cut the data
+cut_b = 60;
+cut_e = 90;
+
+% Last, taper it
