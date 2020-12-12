@@ -156,8 +156,34 @@ toc
 
 % First, optionally filter data
 
-% Second, cut the data
+% Second, cut and taper the data
 cut_b = 60;
 cut_e = 90;
+taperw = 0.25;
 
-% Last, taper it
+for i = 1:length(nData)
+    % Get P-wave arrival time from 'T0' header
+    pidx = fix(sac{i}.hn.t(1)/sac{i}.hn.delta);
+    bidx = pidx - fix(cut_b/sac{i}.hn.delta);
+    eidx = pidx + fix(cut_e/sac{i}.hn.delta);
+    
+    sac{i}.drc = sac{i}.dr(bidx:eidx);
+    sac{i}.drc = sac{i}.drc.*tukeywin(length(sac{i}.drc),taperw);
+end
+
+for i = 1:length(zData)
+    pidx = fix(sac{i}.hz.t(1)/sac{i}.hz.delta);
+    bidx = pidx - fix(cut_b/sac{i}.hz.delta);
+    eidx = pidx + fix(cut_e/sac{i}.hz.delta);
+    
+    sac{i}.dzc = sac{i}.dz(bidx:eidx);
+    sac{i}.dzc = sac{i}.dzc.*tukeywin(length(sac{i}.dzc),taperw);
+end
+
+%% ------------------------------------------------------------------------
+% Calculate receiver functions!
+% -------------------------------------------------------------------------
+
+% In this section, need to check that the vertical and radial component
+% correspond to the same event before making receiver function!
+
