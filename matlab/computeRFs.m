@@ -155,9 +155,23 @@ toc
 % -------------------------------------------------------------------------
 
 % First, optionally filter data
+fc = [0.02 0.2];
+for i = 1:length(nData)
+    fs = 1/sac{i}.hn.delta;
+    [b,a] = butter(3,fc/(fs/2),'bandpass');
+    % sac{i}.dr = filtfilt(b,a,sac{i}.dr);
+    sac{i}.dr = filter(b,a,sac{i}.dr);
+end
+
+for i = 1:length(zData)
+    fs = 1/sac{i}.hz.delta;
+    [b,a] = butter(3,fc/(fs/2),'bandpass');
+    % sac{i}.dz = filtfilt(b,a,sac{i}.dz);
+    sac{i}.dz = filter(b,a,sac{i}.dz);
+end
 
 % Second, cut and taper the data
-cut_b = 60;
+cut_b = 30;
 cut_e = 90;
 taperw = 0.25;
 
@@ -205,3 +219,14 @@ for i = 1:length(nData)
         end
     end
 end
+
+%% Compare to results using Python...
+
+pyDir = '/Users/aburky/IFILES/NETWORKS_TEST/TA/N61A/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/';
+pyFile = '2014.04.18.14.27.24.TA.N61A.NULL.RF.SAC';
+
+[py.t,py.d,py.h] = fread_sac(fullfile(pyDir,pyFile));
+
+plot(py.t,py.d,'k')
+hold on
+plot(rf{3}.t,rf{3}.d,'r')
