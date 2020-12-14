@@ -187,3 +187,21 @@ end
 % In this section, need to check that the vertical and radial component
 % correspond to the same event before making receiver function!
 
+gw = 1.0;
+tshift = 10;
+itmax = 1000;
+tol = 0.001;
+
+for i = 1:length(nData)
+    for j = 1:length(zData)
+        if sac{i}.hn.nzjday == sac{j}.hz.nzjday
+            if sac{i}.hn.nzhour == sac{j}.hz.nzhour
+                npts = length(sac{i}.drc);
+                [rf{i}.d,rf{i}.rms] = makeRFitdecon_la(sac{i}.drc,...
+                    sac{j}.dzc,sac{i}.hn.delta,npts,tshift,gw,itmax,tol);
+                rf{i}.t = 0:sac{i}.hn.delta:(length(rf{i}.d)-1)*...
+                    sac{i}.hn.delta;
+            end
+        end
+    end
+end
