@@ -215,9 +215,21 @@ for i = 1:length(nData)
                     sac{j}.dzc,sac{i}.hn.delta,npts,tshift,gw,itmax,tol);
                 rf{i}.t = 0:sac{i}.hn.delta:(length(rf{i}.d)-1)*...
                     sac{i}.hn.delta;
+                rf{i}.h = sac{j}.hz;
             end
         end
     end
+end
+
+%% ------------------------------------------------------------------------
+% Save the resulting receiver function data to SAC files
+% -------------------------------------------------------------------------
+
+% Write a separate function - saveRF.m - to do this...
+% Model it after 'saveSAC.m'
+
+for i = 1:length(rf)
+    % saveRF.m
 end
 
 %% Compare to results using Python...
