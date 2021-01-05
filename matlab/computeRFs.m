@@ -8,7 +8,7 @@
 % as well as some parameters controlling the resulting receiver functions
 
 %--------------------------------------------------------------------------
-% Last updated 1/4/2020 by aburky@princeton.edu
+% Last updated 1/5/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -129,12 +129,10 @@ end
 % -------------------------------------------------------------------------
 
 % Iterate over the longer of the two horizontal file lists
-% nFiles = [length(eData), length(nData)];
+nFiles = [length(eData), length(nData)];
 
-% for i = 1:max(nFiles)
-disp('Rotation loop execution time:')
-tic
-for i = 1:length(eData)
+for i = 1:max(nFiles)
+% for i = 1:length(eData)
     % Check if the two files correspond to the same event
     for j = 1:length(nData)
         if sac{i}.he.nzjday == sac{j}.hn.nzjday
@@ -148,7 +146,6 @@ for i = 1:length(eData)
         end
     end
 end
-toc
 
 %% ------------------------------------------------------------------------
 % Pre-Process Data: Cut, Taper, and Optionally Filter
@@ -216,6 +213,20 @@ for i = 1:length(nData)
                 rf{i}.t = 0:sac{i}.hn.delta:(length(rf{i}.d)-1)*...
                     sac{i}.hn.delta;
                 rf{i}.h = sac{j}.hz;
+                % Get indices for calculating signal to noise ratio
+                % (using method of Gao and Liu, 2014)
+                noise_b = round((cut_b - 20)*(1/sac{i}.hz.delta))-1;
+                noise_e = round((cut_b - 10)*(1/sac{i}.hz.delta));
+                signal_b = round((cut_b - 8)*(1/sac{i}.hz.delta))-1;
+                signal_e = round((cut_b + 12)*(1/sac{i}.hz.delta));
+                % Calculate vertical component SNR
+                vn = abs(mean(sac{i}.dzc(noise_b:noise_e)));
+                vs = max(abs(sac{i}.dzc(signal_b:signal_e)));
+                rf{i}.vsnr = vs/vn;
+                % Calculate radial component SNR
+                rn = abs(mean(sac{i}.drc(noise_b:noise_e)));
+                rs = max(abs(sac{i}.drc(signal_b:signal_e)));
+                rf{i}.rsnr = rs/rn;
             end
         end
     end
@@ -225,11 +236,8 @@ end
 % Save the resulting receiver function data to SAC files
 % -------------------------------------------------------------------------
 
-% Write a separate function - saveRF.m - to do this...
-% Model it after 'saveSAC.m'
-
 for i = 1:length(rf)
-    % saveRF.m
+    saveRF(rf{i},dataDir);
 end
 
 %% Compare to results using Python...
