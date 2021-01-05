@@ -15,7 +15,7 @@ function saveRF(rf,directory)
 %             control parameter
 %
 %--------------------------------------------------------------------------
-% Last updated 1/5/2020 by aburky@princeton.edu
+% Last updated 1/5/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % Receiver function timeseries data
