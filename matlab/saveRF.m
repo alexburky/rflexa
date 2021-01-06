@@ -35,10 +35,17 @@ sacmat.hdr.user(4) = qcRF(rf.d,rf.t);
 % Format the receiver function filename
 [~, mm, dd, ~, ~, ~] = datevec(datenum(sacmat.hdr.nzyear,...
                                1,sacmat.hdr.nzjday));
+if strcmp(sacmat.hdr.khole,'-12345')
+    locID = '';
+elseif strcmp(sacmat.hdr.khole,'')
+    locID = '';
+else
+    locID = sacmat.hdr.khole;
+end
 fname = sprintf('%i.%02d.%02d.%02d.%02d.%02d.%s.%s.%s.RF.SAC',...
                 sacmat.hdr.nzyear,mm,dd,sacmat.hdr.nzhour,...
                 sacmat.hdr.nzmin,sacmat.hdr.nzsec,sacmat.hdr.knetwk,...
-                sacmat.hdr.kstnm,sacmat.hdr.khole);
+                sacmat.hdr.kstnm,locID);
             
 % Save the receiver function data as a SAC file
 fwrite_sac(sacmat,fullfile(directory,fname));

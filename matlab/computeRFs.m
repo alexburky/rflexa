@@ -13,10 +13,24 @@
 
 clear,clc
 
+tic
+
 % -------------------------------------------------------------------------
 % Read in seismic data
 % -------------------------------------------------------------------------
-dataDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
+
+% Location of seismic data
+dataDir = '/Users/aburky/IFILES/NETWORKS/TA/H62A/NULL/RFQUAKES_COUNTS/';
+
+% Directory where receiever functions will be saved
+rfDir = '/Users/aburky/IFILES/NETWORKS/TA/H62A/NULL/RFUNCS_VEL/';
+if ~exist(rfDir,'dir')
+    mkdir(rfDir)
+elseif exist(rfDir,'dir') == 7
+    disp('Receiver function directory already exists! Deleting it...')
+    rmdir(rfDir,'s')
+    mkdir(rfDir)
+end
 
 % First, try for files with 'BHE' or 'BHN' naming convention
 eData = dir(fullfile(dataDir,'*BHE*SAC'));
@@ -129,18 +143,24 @@ end
 % -------------------------------------------------------------------------
 
 % Iterate over the longer of the two horizontal file lists
-nFiles = [length(eData), length(nData)];
+% nFiles = [length(eData), length(nData)];
 
-for i = 1:max(nFiles)
-% for i = 1:length(eData)
-    % Check if the two files correspond to the same event
+% for i = 1:max(nFiles)
+k = 1;
+for i = 1:length(eData)
     for j = 1:length(nData)
-        if sac{i}.he.nzjday == sac{j}.hn.nzjday
-            if sac{i}.he.nzhour == sac{j}.hn.nzhour
+        % Check if the two files correspond to the same event
+        d1 = [sac{i}.he.nzyear sac{i}.he.nzjday sac{i}.he.nzhour];
+        d2 = [sac{j}.hn.nzyear sac{j}.hn.nzjday sac{j}.hn.nzhour];
+        if isequal(d1,d2)
+            if length(sac{i}.de) == length(sac{j}.dn)
                 [sac{j}.dn,sac{i}.de] = seisne(sac{j}.dn,sac{i}.de,...
-                                                sac{j}.hn.cmpaz);
+                                                    sac{j}.hn.cmpaz);
                 [sac{j}.dr,sac{i}.dt] = seisrt(sac{j}.dn,sac{i}.de,...
-                                                sac{j}.hn.baz);
+                                                    sac{j}.hn.baz);
+                rGood(k) = j;
+                tGood(k) = i;
+                k = k + 1;
                 break
             end
         end
@@ -153,11 +173,11 @@ end
 
 % First, optionally filter data
 fc = [0.02 0.2];
-for i = 1:length(nData)
-    fs = 1/sac{i}.hn.delta;
+for i = 1:length(rGood)
+    fs = 1/sac{rGood(i)}.hn.delta;
     [b,a] = butter(3,fc/(fs/2),'bandpass');
     % sac{i}.dr = filtfilt(b,a,sac{i}.dr);
-    sac{i}.dr = filter(b,a,sac{i}.dr);
+    sac{i}.dr = filter(b,a,sac{rGood(i)}.dr);
 end
 
 for i = 1:length(zData)
@@ -172,14 +192,15 @@ cut_b = 30;
 cut_e = 90;
 taperw = 0.25;
 
-for i = 1:length(nData)
+for i = 1:length(rGood)
     % Get P-wave arrival time from 'T0' header
-    pidx = fix(sac{i}.hn.t(1)/sac{i}.hn.delta);
-    bidx = pidx - fix(cut_b/sac{i}.hn.delta);
-    eidx = pidx + fix(cut_e/sac{i}.hn.delta);
+    pidx = fix(sac{rGood(i)}.hn.t(1)/sac{rGood(i)}.hn.delta);
+    bidx = pidx - fix(cut_b/sac{rGood(i)}.hn.delta);
+    eidx = pidx + fix(cut_e/sac{rGood(i)}.hn.delta);
     
-    sac{i}.drc = sac{i}.dr(bidx:eidx);
-    sac{i}.drc = sac{i}.drc.*tukeywin(length(sac{i}.drc),taperw);
+    sac{rGood(i)}.drc = sac{rGood(i)}.dr(bidx:eidx);
+    sac{rGood(i)}.drc = sac{rGood(i)}.drc.*...
+                        tukeywin(length(sac{rGood(i)}.drc),taperw);
 end
 
 for i = 1:length(zData)
@@ -203,31 +224,32 @@ tshift = 10;
 itmax = 1000;
 tol = 0.001;
 
-for i = 1:length(nData)
+for i = 1:length(rGood)
     for j = 1:length(zData)
-        if sac{i}.hn.nzjday == sac{j}.hz.nzjday
-            if sac{i}.hn.nzhour == sac{j}.hz.nzhour
-                npts = length(sac{i}.drc);
-                [rf{i}.d,rf{i}.rms] = makeRFitdecon_la(sac{i}.drc,...
-                    sac{j}.dzc,sac{i}.hn.delta,npts,tshift,gw,itmax,tol);
-                rf{i}.t = 0:sac{i}.hn.delta:(length(rf{i}.d)-1)*...
-                    sac{i}.hn.delta;
-                rf{i}.h = sac{j}.hz;
-                % Get indices for calculating signal to noise ratio
-                % (using method of Gao and Liu, 2014)
-                noise_b = round((cut_b - 20)*(1/sac{i}.hz.delta))-1;
-                noise_e = round((cut_b - 10)*(1/sac{i}.hz.delta));
-                signal_b = round((cut_b - 8)*(1/sac{i}.hz.delta))-1;
-                signal_e = round((cut_b + 12)*(1/sac{i}.hz.delta));
-                % Calculate vertical component SNR
-                vn = abs(mean(sac{i}.dzc(noise_b:noise_e)));
-                vs = max(abs(sac{i}.dzc(signal_b:signal_e)));
-                rf{i}.vsnr = vs/vn;
-                % Calculate radial component SNR
-                rn = abs(mean(sac{i}.drc(noise_b:noise_e)));
-                rs = max(abs(sac{i}.drc(signal_b:signal_e)));
-                rf{i}.rsnr = rs/rn;
-            end
+        d1 = [sac{rGood(i)}.hn.nzyear sac{rGood(i)}.hn.nzjday ...
+              sac{rGood(i)}.hn.nzhour];
+        d2 = [sac{j}.hz.nzyear sac{j}.hz.nzjday sac{j}.hz.nzhour];
+        if isequal(d1,d2)
+            npts = length(sac{rGood(i)}.drc);
+            [rf{i}.d,rf{i}.rms] = makeRFitdecon_la(sac{rGood(i)}.drc,...
+                sac{j}.dzc,sac{j}.hz.delta,npts,tshift,gw,itmax,tol);
+            rf{i}.t = 0:sac{j}.hz.delta:(length(rf{i}.d)-1)*...
+                sac{j}.hz.delta;
+            rf{i}.h = sac{j}.hz;
+            % Get indices for calculating signal to noise ratio
+            % (using method of Gao and Liu, 2014)
+            noise_b = round((cut_b - 20)*(1/sac{j}.hz.delta))-1;
+            noise_e = round((cut_b - 10)*(1/sac{j}.hz.delta));
+            signal_b = round((cut_b - 8)*(1/sac{j}.hz.delta))-1;
+            signal_e = round((cut_b + 12)*(1/sac{j}.hz.delta));
+            % Calculate vertical component SNR
+            vn = abs(mean(sac{j}.dzc(noise_b:noise_e)));
+            vs = max(abs(sac{j}.dzc(signal_b:signal_e)));
+            rf{i}.vsnr = vs/vn;
+            % Calculate radial component SNR
+            rn = abs(mean(sac{rGood(i)}.drc(noise_b:noise_e)));
+            rs = max(abs(sac{rGood(i)}.drc(signal_b:signal_e)));
+            rf{i}.rsnr = rs/rn;
         end
     end
 end
@@ -237,16 +259,19 @@ end
 % -------------------------------------------------------------------------
 
 for i = 1:length(rf)
-    saveRF(rf{i},dataDir);
+    saveRF(rf{i},rfDir);
 end
+
+disp('Execution time:')
+toc
 
 %% Compare to results using Python...
 
-pyDir = '/Users/aburky/IFILES/NETWORKS_TEST/TA/N61A/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/';
-pyFile = '2014.04.18.14.27.24.TA.N61A.NULL.RF.SAC';
+% pyDir = '/Users/aburky/IFILES/NETWORKS_TEST/TA/N61A/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/';
+% pyFile = '2014.04.18.14.27.24.TA.N61A.NULL.RF.SAC';
 
-[py.t,py.d,py.h] = fread_sac(fullfile(pyDir,pyFile));
+% [py.t,py.d,py.h] = fread_sac(fullfile(pyDir,pyFile));
 
-plot(py.t,py.d,'k')
+% plot(py.t,py.d,'k')
 hold on
 plot(rf{3}.t,rf{3}.d,'r')
