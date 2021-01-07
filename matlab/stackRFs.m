@@ -6,12 +6,12 @@
 % converted receiver function stack
 %
 %--------------------------------------------------------------------------
-% Last updated 1/5/2021 by aburky@princeton.edu
+% Last updated 1/7/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
 
-station = 'P61A';
+station = 'O61A';
 
 % Directory containing the receiver function data
 rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
@@ -222,5 +222,6 @@ ax3.TickDir = 'out';
 ax3.YTick = [-0.05 -0.025 0 0.025 0.05];
 
 % Save the completed figure!
-fName = [station,'_Summary.pdf'];
-exportgraphics(gcf,fName,'Resolution',600);
+fName = [station,'_Summary.png'];
+% exportgraphics(gcf,fName,'Resolution',600);
+print(fName,'-dpng','-r300');
