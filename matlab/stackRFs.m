@@ -9,9 +9,9 @@
 % Last updated 1/7/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-clear,clc
+clear,clc,clf
 
-station = 'O61A';
+station = 'J58A';
 
 % Directory containing the receiver function data
 rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
