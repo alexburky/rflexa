@@ -6,17 +6,18 @@
 % converted receiver function stack
 %
 %--------------------------------------------------------------------------
-% Last updated 1/7/2021 by aburky@princeton.edu
+% Last updated 1/8/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-clear,clc,clf
-
-station = 'J58A';
+% station = 'H62A';
 
 % Directory containing the receiver function data
 rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
          '/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/'];
 rfs = dir(fullfile(rfdir,'*RF.SAC'));
+
+% Directory to save the resulting image to
+imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Plots/';
 
 % Flag indicating whether PP is included or not
 PP = false;
@@ -154,6 +155,10 @@ H2 = [gcarc, mag];
 mygray = flipud(gray);
 mygray(2:end,:) = mygray(2:end,:)*0.95;
 
+% Initialize the figure
+f = figure('visible','off');
+set(0,'DefaultFigureVisible','off');
+
 % GCARC vs. Magnitude
 p1 = subplot(2,2,1);
 hist3(H2,nbins,'CdataMode','auto','EdgeColor','none')
@@ -224,4 +229,4 @@ ax3.YTick = [-0.05 -0.025 0 0.025 0.05];
 % Save the completed figure!
 fName = [station,'_Summary.png'];
 % exportgraphics(gcf,fName,'Resolution',600);
-print(fName,'-dpng','-r300');
+print(fullfile(imgDir,fName),'-dpng','-r300');
