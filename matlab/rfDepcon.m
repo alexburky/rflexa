@@ -122,12 +122,12 @@ if strcmp(normalize,'true')
     % [~,shidx] = max(abs(rf));
 else
     % Default time shift of 10 seconds
-    shidx = fix(10/dt);
+    % shidx = fix(10/dt);
 end
 
 % Remove 10 second time shift
 % shidx = round(10/dt);
-rf = rf(shidx:end);
+% rf = rf(shidx:end);
 
 % Depth convert the data
 ttzm_r = round(ttzm/dt);

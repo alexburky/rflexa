@@ -9,7 +9,11 @@
 % Last updated 1/8/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-% station = 'H62A';
+clear,clc
+
+% set(groot,'DefaultFigureVisible','on')
+
+station = 'J58A';
 
 % Directory containing the receiver function data
 rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
@@ -156,8 +160,8 @@ mygray = flipud(gray);
 mygray(2:end,:) = mygray(2:end,:)*0.95;
 
 % Initialize the figure
-f = figure('visible','off');
-set(0,'DefaultFigureVisible','off');
+% f = figure('visible','off');
+% set(0,'DefaultFigureVisible','off');
 
 % GCARC vs. Magnitude
 p1 = subplot(2,2,1);
@@ -215,7 +219,7 @@ fill(xPatchNeg,yPatchNeg,'b','LineStyle','None');
 plot(z,stack,'k')
 ax3 = gca;
 xlim([300 750])
-ylim([-0.05 0.05])
+ylim([-0.1 0.1])
 plot(z,mbstk + 2.*sdv,'k')
 plot(z,mbstk - 2.*sdv,'k')
 grid on
