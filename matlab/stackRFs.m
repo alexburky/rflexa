@@ -6,14 +6,10 @@
 % converted receiver function stack
 %
 %--------------------------------------------------------------------------
-% Last updated 1/8/2021 by aburky@princeton.edu
+% Last updated 1/11/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-clear,clc
-
-% set(groot,'DefaultFigureVisible','on')
-
-station = 'J58A';
+% station = 'N61A';
 
 % Directory containing the receiver function data
 rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
@@ -122,26 +118,7 @@ pos(pos < 0) = 0;
 neg = mbstk + (2.*sdv);
 neg(neg > 0) = 0;
 
-% Plot the result!
-% xPatchPos = [z, fliplr(z)];
-% yPatchPos = [zeros(size(mbstk)), fliplr(pos)];
-% fill(xPatchPos,yPatchPos,'r','LineStyle','None');
-% hold on
-% xPatchNeg = [z, fliplr(z)];
-% yPatchNeg = [zeros(size(mbstk)), fliplr(neg)];
-% fill(xPatchNeg,yPatchNeg,'b','LineStyle','None');
-% plot(z,stack,'k')
-% xlim([300 750])
-% ylim([-0.05 0.05])
-% plot(z,mbstk + 2.*sdv,'k')
-% plot(z,mbstk - 2.*sdv,'k')
-% grid on
-% ylabel('$\bar{f}_{Z \rightarrow R}(p,z)$')
-% xlabel('Depth (km)')
-% % title(sprintf('TA Station: %s',station))
-% title('Pre-Filtered 5 - 50s')
-
-%% Plot some statistics
+%% Make a plot of the stack and additional statistics
 
 for i = 1:length(rf_0)
     % Save statistics as vectors
@@ -228,9 +205,12 @@ xlabel('Depth (km)')
 title('Pre-Filtered 5 - 50s')
 ax3.FontSize = 12;
 ax3.TickDir = 'out';
-ax3.YTick = [-0.05 -0.025 0 0.025 0.05];
+ax3.YTick = [-0.1 -0.05 0 0.05 0.1];
 
 % Save the completed figure!
 fName = [station,'_Summary.png'];
-% exportgraphics(gcf,fName,'Resolution',600);
 print(fullfile(imgDir,fName),'-dpng','-r300');
+
+% Save the depth converted stack to a .mat file
+fName = [station,'_Stack.mat'];
+save(fullfile(rfdir,fName),'z','stack');
