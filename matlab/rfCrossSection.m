@@ -37,15 +37,20 @@ end
 
 %% Plot a cross section!
 
+% Location to save the resulting cross sectional image
+imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_XSections/';
+
+% Do this for stations D through Z
+
 % Look for all stations starting with station code 'T'
 % (This plots a line of station with roughly equal latitude)
-stat = 'K';
+stat = 'C';
 p1 = subplot(1,2,1);
 scale = 10;
 minLon = 180;
 maxLon = -180;
 for i = 1:length(rf)
-    if strncmpi(rf{i}.code,stat,1) && strncmpi('KMSC',rf{i}.code,4) == 0
+    if strncmpi(rf{i}.code,stat,1) && strncmpi('KMSC',rf{i}.code,4) == 0 && strncmpi('SPMN',rf{i}.code,4) == 0 && strncmpi('SFIN',rf{i}.code,4) == 0 && strncmpi('TIGA',rf{i}.code,4) == 0
         pos = scale*rf{i}.d + rf{i}.lon;
         pos(pos < rf{i}.lon) = rf{i}.lon;
         xPatchPos = [rf{i}.lon * ones(size(pos)), fliplr(pos)];
@@ -93,13 +98,12 @@ setm(gca,'parallellabel','on')
 setm(gca,'meridianlabel','on')
 
 for i = 1:length(rf)
-    if strncmpi(rf{i}.code,stat,1) && strncmpi('KMSC',rf{i}.code,4) == 0
+    if strncmpi(rf{i}.code,stat,1) && strncmpi('KMSC',rf{i}.code,4) == 0 && strncmpi('SPMN',rf{i}.code,4) == 0 && strncmpi('SFIN',rf{i}.code,4) == 0 && strncmpi('TIGA',rf{i}.code,4) == 0
         scatterm(rf{i}.lat,rf{i}.lon,40,'r','^','filled','MarkerEdgeColor','k');
     end
 end
 
 % Save the completed figure!
 fName = ['TA_',stat,'*_XS.png'];
-print(fName,'-dpng','-r600');
-% print(fullfile(imgDir,fName),'-dpng','-r600');
+print(fullfile(imgDir,fName),'-dpng','-r600');
 
