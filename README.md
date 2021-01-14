@@ -1,12 +1,13 @@
 # rflexa
 
-rflexa is a complete, Python based, receiver function workflow tool,
+rflexa is a complete receiver function workflow tool,
 with the purpose of assisting the observational seismologist *from
 station to subsurface*. Although initially built for receiver function
 analysis, the individual modules can be extracted for use and
-integrated into your existing workflow.
+integrated into your existing workflow. rflexa exists as two independent
+branches, a MATLAB version, and a Python version.
 
-## Getting Started
+## Python Version
 This guide is not intended to be a complete introduction to Python,
 but if you are new to the Python programming language I highly
 recommend you go through the following steps before continuing any
@@ -35,3 +36,6 @@ package, and requires that you have ObsPy installed in order to run
 properly. If you already have ObsPy installed, you can continue to the
 download and use the source code from the folders above.
 
+## MATLAB Version
+For a thorough explanation of the functions included in the MATLAB version of rflexa,
+consult the documentation [here](https://github.com/alexburky/rflexa).
