@@ -6,10 +6,12 @@
 % converted receiver function stack
 %
 %--------------------------------------------------------------------------
-% Last updated 1/11/2021 by aburky@princeton.edu
+% Last updated 1/20/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
-% station = 'N61A';
+clear,clc
+
+station = 'N41A';
 
 % Directory containing the receiver function data
 rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
@@ -17,7 +19,7 @@ rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
 rfs = dir(fullfile(rfdir,'*RF.SAC'));
 
 % Directory to save the resulting image to
-imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Plots/';
+imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_Plots/';
 
 % Flag indicating whether PP is included or not
 PP = false;
@@ -44,6 +46,8 @@ for i = 1:length(rfs)
         % Keep receiver functions which pass all QC
         rf{j} = rf_0{i};
         gcarcs(j) = rf{j}.h.gcarc;
+        evla(j) = rf{j}.h.evla;
+        evlo(j) = rf{j}.h.evlo;
         rf{j}.d = rf{j}.d/max(rf{j}.d(1:round(20/rf{j}.h.delta)));
         [~,shidx] = max(rf{j}.d(1:round(20/rf{j}.h.delta)));
         rf{j}.d = rf{j}.d(shidx:end);
@@ -213,4 +217,4 @@ print(fullfile(imgDir,fName),'-dpng','-r300');
 
 % Save the depth converted stack to a .mat file
 fName = [station,'_Stack.mat'];
-save(fullfile(rfdir,fName),'z','stack');
+save(fullfile(rfdir,fName),'z','stack','evla','evlo');

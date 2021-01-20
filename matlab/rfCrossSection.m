@@ -6,14 +6,14 @@
 % Inputs: Start and end coordinates of cross section?
 %
 %------------------------------------------------------------------
-% Last updated 1/19/2021 by aburky@princeton.edu
+% Last updated 1/20/2021 by aburky@princeton.edu
 %------------------------------------------------------------------
 
 clear,clc
 
 % Location of Depth Converted Stacks
 stackDir = ['/Users/aburky/IFILES/NETWORKS/TA_Analysis/',...
-            'Stacks_Filt_0.02_0.2_GW10/'];
+            'XS_Test/'];
 stacks = dir(fullfile(stackDir,'*.mat'));
 
 % Location of station latitude abd longitude information
@@ -33,6 +33,8 @@ for i = 1:length(stacks)
         end
     end
     rf{i}.d = stack;
+    rf{i}.evla = evla;
+    rf{i}.evlo = evlo;
 end
 
 %% Plot a cross section!
@@ -44,7 +46,7 @@ imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_XSections/';
 
 % Look for all stations starting with station code 'T'
 % (This plots a line of station with roughly equal latitude)
-stat = 'C';
+stat = 'N';
 p1 = subplot(1,2,1);
 scale = 10;
 minLon = 180;
@@ -87,7 +89,7 @@ xlim([minLon - 1 maxLon + 1])
 set(p1,'Position',[0.1 0.15 0.4 0.75]);
 
 % Plot a map above the cross section to give geographic context
-axes('Position',[0.55 0.5 0.45 0.45]);
+axes('Position',[0.55 0.525 0.45 0.45]);
 landareas = shaperead('landareas.shp','UseGeoCoords',true);
 axesm('mercator','MapLatLimit',[20 50],'MapLonLimit',[-110 -60]);
 geoshow(landareas,'FaceColor',[0.75 0.75 0.75],'EdgeColor','k','LineWidth',0.1);
@@ -98,9 +100,28 @@ setm(gca,'parallellabel','on')
 setm(gca,'meridianlabel','on')
 
 for i = 1:length(rf)
+    j = 0;
+    stla_m = 0;
+    stlo_m = 0;
     if strncmpi(rf{i}.code,stat,1) && strncmpi('KMSC',rf{i}.code,4) == 0 && strncmpi('SPMN',rf{i}.code,4) == 0 && strncmpi('SFIN',rf{i}.code,4) == 0 && strncmpi('TIGA',rf{i}.code,4) == 0
         scatterm(rf{i}.lat,rf{i}.lon,40,'r','^','filled','MarkerEdgeColor','k');
+        stla_m = stla_m + rf{i}.lat;
+        stlo_m = stlo_m + rf{i}.lon;
+        j = j + 1;
     end
+    stla_m = stla_m/j;
+    stlo_m = stlo_m/j;
+end
+
+% Plot a map at the bottom right showing the distribution of events
+axes('Position',[0.55 0.075 0.45 0.45]);
+axesm('eqdazim','Origin',[stla_m,stlo_m]);
+geoshow(landareas,'FaceColor',[0.75 0.75 0.75]);
+axis off
+framem
+%gridm
+for i = 1:length(rf)
+    scatterm(rf{i}.evla,rf{i}.evlo,20,'r','filled','MarkerEdgeColor','k');
 end
 
 % Save the completed figure!
