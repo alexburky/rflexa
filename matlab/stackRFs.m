@@ -6,7 +6,7 @@
 % converted receiver function stack
 %
 %--------------------------------------------------------------------------
-% Last updated 1/20/2021 by aburky@princeton.edu
+% Last updated 1/26/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
