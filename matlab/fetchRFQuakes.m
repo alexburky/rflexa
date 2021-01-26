@@ -7,28 +7,28 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 12/10/2020 by aburky@princeton.edu
+% Last updated 1/26/2020 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
 
 % Define the directory where you would like to save the data
-sacDir = '/Users/aburky/PycharmProjects/bermudaRFs/matlab/';
+sacDir = '/Users/aburky/IFILES/NETWORKS/II/SACV/00/';
 
 % Define the network/station that you would like to fetch data for
-network = 'TA';
-station = 'N61A';
-location = '*';
+% network = 'TA';
+% station = 'N61A';
+% location = '*';
+% channel = 'BH*';
+
+network = 'II';
+station = 'SACV';
+location = '00';
 channel = 'BH*';
 
-% network = 'II';
-% station = 'SACV';
-% location = '10';
-% channel = 'BHZ';
-
 % Define desired earthquake parameters
-minMag = 7.0;
-maxMag = 7.5;
+minMag = 5.5;
+maxMag = 9.0;
 minRad = 30;
 maxRad = 90;
 
@@ -87,7 +87,7 @@ for i = 1:length(ch)
         tr = irisFetch.Traces(network,station,location,...
                 ch(i).ChannelCode,ev_start,ev_end);
         % Save the trace data to a SAC file
-        if ~isempty(tr)
+        if ~isempty(tr) && length(tr) == 1
             saveSAC(tr,ev_start,sacDir,'event',ev(j),'pz',i);
         end
     end
