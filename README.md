@@ -7,7 +7,7 @@ analysis, the individual modules can be extracted for use and
 integrated into your existing workflow. rflexa exists as two independent
 branches, a MATLAB version, and a Python version.
 
-[Installing the TauP Toolkit](###the-taup-toolkit)
+[Installing the TauP Toolkit](##the-taup-toolkit)
 
 ## Python Version
 This guide is not intended to be a complete introduction to Python,
