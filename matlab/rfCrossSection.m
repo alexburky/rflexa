@@ -6,14 +6,14 @@
 % Inputs: Start and end coordinates of cross section?
 %
 %------------------------------------------------------------------
-% Last updated 1/26/2021 by aburky@princeton.edu
+% Last updated 2/3/2021 by aburky@princeton.edu
 %------------------------------------------------------------------
 
 clear,clc
 
 % Location of Depth Converted Stacks
 stackDir = ['/Users/aburky/IFILES/NETWORKS/TA_Analysis/',...
-            'XS_Test/'];
+            'TA_Stacks/FILTERED_0.2_5/'];
 stacks = dir(fullfile(stackDir,'*.mat'));
 
 % Location of station latitude abd longitude information
@@ -48,13 +48,13 @@ end
 %% Plot a cross section!
 
 % Location to save the resulting cross sectional image
-imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_XSections/';
+imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_XSections/FILTERED_0.2_5/';
 
 % Do this for stations D through Z
 
 % Look for all stations starting with station code 'T'
 % (This plots a line of station with roughly equal latitude)
-stat = 'Z';
+stat = 'U';
 p1 = subplot(1,2,1);
 scale = 10;
 minLon = 180;
@@ -148,6 +148,8 @@ for i = 1:length(rf)
         scatterm(rf{i}.evla,rf{i}.evlo,20,'r','filled','MarkerEdgeColor','k');
     end
 end
+
+% sgtitle('Filtered 0.02 - 0.2 Hz')
 
 % Save the completed figure!
 fName = ['TA_',stat,'*_XS.png'];
