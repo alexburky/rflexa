@@ -6,20 +6,21 @@
 % converted receiver function stack
 %
 %--------------------------------------------------------------------------
-% Last updated 1/26/2021 by aburky@princeton.edu
+% Last updated 2/5/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
 
-station = 'N41A';
+station = 'SACV';
 
 % Directory containing the receiver function data
-rfdir = ['/Users/aburky/IFILES/NETWORKS/TA/',station,...
-         '/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/'];
+rfdir = ['/Users/aburky/IFILES/NETWORKS/II/',station,...
+         '/00/RFUNCS_VEL/'];
 rfs = dir(fullfile(rfdir,'*RF.SAC'));
 
 % Directory to save the resulting image to
-imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_Plots/';
+% imgDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/TA_Plots/';
+imgDir = '/Users/aburky/IFILES/NETWORKS/II/II_Plots/';
 
 % Flag indicating whether PP is included or not
 PP = false;
