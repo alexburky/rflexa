@@ -107,4 +107,4 @@ data = ifft(data_fft,nfft);
 data = data(1:npts);
 
 % Divide by 1e9 to get to meters
-data = data/1e9;
+% data = data/1e9;
