@@ -6,14 +6,14 @@
 % Inputs: Start and end coordinates of cross section?
 %
 %------------------------------------------------------------------
-% Last updated 2/9/2021 by aburky@princeton.edu
+% Last updated 2/10/2021 by aburky@princeton.edu
 %------------------------------------------------------------------
 
 clear,clc
 
 % Location of Depth Converted Stacks
 stackDir = ['/Users/aburky/IFILES/NETWORKS/TA_Analysis/',...
-            'Stacks/FILTERED_0.02_0.2/GW10/'];
+            'Stacks/FILTERED_0.2_5/GW20/'];
 stacks = dir(fullfile(stackDir,'*.mat'));
 
 % Location of station latitude abd longitude information
@@ -49,7 +49,7 @@ end
 
 % Location to save the resulting cross sectional image
 imgDir = ['/Users/aburky/IFILES/NETWORKS/TA_Analysis/',...
-          'XSections/FILTERED_0.02_0.2/GW10/'];
+          'XSections/FILTERED_0.2_5/GW20/'];
 
 % Disbale figure plotting
 set(0,'DefaultFigureVisible','off');
