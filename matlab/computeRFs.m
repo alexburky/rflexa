@@ -8,7 +8,7 @@
 % as well as some parameters controlling the resulting receiver functions
 
 %--------------------------------------------------------------------------
-% Last updated 2/5/2021 by aburky@princeton.edu
+% Last updated 2/11/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
