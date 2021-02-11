@@ -6,7 +6,7 @@
 % Inputs: Start and end coordinates of cross section?
 %
 %------------------------------------------------------------------
-% Last updated 2/10/2021 by aburky@princeton.edu
+% Last updated 2/11/2021 by aburky@princeton.edu
 %------------------------------------------------------------------
 
 clear,clc
