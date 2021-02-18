@@ -8,7 +8,7 @@
 % as well as some parameters controlling the resulting receiver functions
 
 %--------------------------------------------------------------------------
-% Last updated 2/11/2021 by aburky@princeton.edu
+% Last updated 2/16/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -20,13 +20,13 @@ tic
 % -------------------------------------------------------------------------
 
 % Location of seismic data
-dataDir = '/Users/aburky/IFILES/NETWORKS/II/SACV/00/RFQUAKES/';
+dataDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFQUAKES_COUNTS/';
 
 % Network (for filename convention)
-network = 'II';
+network = 'TA';
 
 % Directory where receiever functions will be saved
-rfDir = '/Users/aburky/IFILES/NETWORKS/II/SACV/00/RFUNCS_VEL/';
+rfDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFUNCS_VEL/';
 if ~exist(rfDir,'dir')
     mkdir(rfDir)
 elseif exist(rfDir,'dir') == 7
@@ -34,6 +34,9 @@ elseif exist(rfDir,'dir') == 7
     rmdir(rfDir,'s')
     mkdir(rfDir)
 end
+
+% Output units for instrument response removal
+units = 'velocity';
 
 % Files with 'BHE' or 'BHN' naming convention
 eData = dir(fullfile(dataDir,'*BHE*SAC'));
@@ -158,46 +161,48 @@ end
 % Remove the instrument response for each channel
 % -------------------------------------------------------------------------
 
-% Instrument response removal parameters
-r = 0.1;
-freqlims = [0.002 0.004 5 10];
+if strcmp(units,'counts') ~= 0
+    % Instrument response removal parameters
+    r = 0.1;
+    freqlims = [0.002 0.004 5 10];
 
-for i = 1:length(sac)
-    % Pre-process East Channel
-    eIdx = extractBefore(sac{i}.efile,'.SAC');
-    eIdx = eIdx(end);
-    sac{i}.de = sac{i}.de - mean(sac{i}.de);
-    sac{i}.de = detrend(sac{i}.de);
-    sac{i}.de = sac{i}.de.*tukeywin(sac{i}.he.npts,r);
-    
-    % Pre-process North Channel
-    nIdx = extractBefore(sac{i}.nfile,'.SAC');
-    nIdx = nIdx(end);
-    sac{i}.dn = sac{i}.dn - mean(sac{i}.dn);
-    sac{i}.dn = detrend(sac{i}.dn);
-    sac{i}.dn = sac{i}.dn.*tukeywin(sac{i}.hn.npts,r);
-    
-    % Pre-process Vertical Channel
-    zIdx = extractBefore(sac{i}.zfile,'.SAC');
-    zIdx = zIdx(end);
-    sac{i}.dz = sac{i}.dz - mean(sac{i}.dz);
-    sac{i}.dz = detrend(sac{i}.dz);
-    sac{i}.dz = sac{i}.dz.*tukeywin(sac{i}.hz.npts,r);
-    
-    % Remove instrument response from each channnel
-    for j = 1:length(pzData)
-        pzFile = pzData(j).name;
-        pzIdx = pzFile(end);
-        pzFile = fullfile(dataDir,pzFile);
-        if strcmp(eIdx,pzIdx)
-            sac{i}.de = transfer(sac{i}.de,sac{i}.he.delta,freqlims,...
-                'velocity',pzFile);
-        elseif strcmp(nIdx,pzIdx)
-            sac{i}.dn = transfer(sac{i}.dn,sac{i}.hn.delta,freqlims,...
-                'velocity',pzFile);
-        elseif strcmp(zIdx,pzIdx)
-            sac{i}.dz = transfer(sac{i}.dz,sac{i}.hz.delta,freqlims,...
-                'velocity',pzFile);
+    for i = 1:length(sac)
+        % Pre-process East Channel
+        eIdx = extractBefore(sac{i}.efile,'.SAC');
+        eIdx = eIdx(end);
+        sac{i}.de = sac{i}.de - mean(sac{i}.de);
+        sac{i}.de = detrend(sac{i}.de);
+        sac{i}.de = sac{i}.de.*tukeywin(sac{i}.he.npts,r);
+
+        % Pre-process North Channel
+        nIdx = extractBefore(sac{i}.nfile,'.SAC');
+        nIdx = nIdx(end);
+        sac{i}.dn = sac{i}.dn - mean(sac{i}.dn);
+        sac{i}.dn = detrend(sac{i}.dn);
+        sac{i}.dn = sac{i}.dn.*tukeywin(sac{i}.hn.npts,r);
+
+        % Pre-process Vertical Channel
+        zIdx = extractBefore(sac{i}.zfile,'.SAC');
+        zIdx = zIdx(end);
+        sac{i}.dz = sac{i}.dz - mean(sac{i}.dz);
+        sac{i}.dz = detrend(sac{i}.dz);
+        sac{i}.dz = sac{i}.dz.*tukeywin(sac{i}.hz.npts,r);
+
+        % Remove instrument response from each channnel
+        for j = 1:length(pzData)
+            pzFile = pzData(j).name;
+            pzIdx = pzFile(end);
+            pzFile = fullfile(dataDir,pzFile);
+            if strcmp(eIdx,pzIdx)
+                sac{i}.de = transfer(sac{i}.de,sac{i}.he.delta,freqlims,...
+                    units,pzFile);
+            elseif strcmp(nIdx,pzIdx)
+                sac{i}.dn = transfer(sac{i}.dn,sac{i}.hn.delta,freqlims,...
+                    units,pzFile);
+            elseif strcmp(zIdx,pzIdx)
+                sac{i}.dz = transfer(sac{i}.dz,sac{i}.hz.delta,freqlims,...
+                    units,pzFile);
+            end
         end
     end
 end
@@ -228,7 +233,7 @@ end
 % -------------------------------------------------------------------------
 
 % First, optionally filter data
-fc = [0.02 0.2];
+fc = [0.02 5];
 
 % Radial component
 for i = 1:length(rGood)
@@ -248,7 +253,7 @@ end
 
 % Second, cut and taper the data
 cut_b = 30;
-cut_e = 90;
+cut_e = 120;
 taperw = 0.25;
 
 % Radial component
@@ -280,9 +285,9 @@ end
 % In this section, need to check that the vertical and radial component
 % correspond to the same event before making receiver function!
 
-gw = 1.0;
+gw = 2.5;
 tshift = 10;
-itmax = 1000;
+itmax = 400;
 tol = 0.001;
 
 j = 1;

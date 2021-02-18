@@ -2,7 +2,7 @@ function savePZ(channel,sacpz,directory,varargin)
 % SAVEPZ Constructs and saves a SAC_PZs poles and zeros file from a
 %        channel structure.
 %
-% >> savePZ(channel,directory)
+% >> savePZ(channel,sacpz,directory)
 %
 %---Input Variables--------------------------------------------------------
 % channel   - channel structure containing all of the relevant poles and
@@ -18,7 +18,7 @@ function savePZ(channel,sacpz,directory,varargin)
 %             corresponding SAC files
 %
 %--------------------------------------------------------------------------
-% Last updated 12/10/2020 by aburky@princeton.edu
+% Last updated 2/16/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add some error handling...

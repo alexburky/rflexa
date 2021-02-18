@@ -7,30 +7,31 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 2/4/2021 by aburky@princeton.edu
+% Last updated 2/16/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
 
 % Define the directory where you would like to save the data
-sacDir = '/Users/aburky/IFILES/NETWORKS/II/SACV/00/';
+% sacDir = '/Users/aburky/IFILES/NETWORKS/II/SACV/00/';
+sacDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFQUAKES_COUNTS/';
 
 % Define the network/station that you would like to fetch data for
-% network = 'TA';
-% station = 'N61A';
-% location = '*';
-% channel = 'BH*';
-
-network = 'II';
-station = 'SACV';
-location = '00';
+network = 'TA';
+station = '339A';
+location = '*';
 channel = 'BH*';
+
+% network = 'II';
+% station = 'SACV';
+% location = '00';
+% channel = 'BH*';
 
 % Define desired earthquake parameters
 minMag = 5.5;
 maxMag = 9.0;
 minRad = 30;
-maxRad = 90;
+maxRad = 95;
 
 ch = irisFetch.Channels('RESPONSE',network,station,location,channel);
 
@@ -77,6 +78,22 @@ for i = 1:length(ch)
             maxMag,'radialcoordinates',donut,'startTime',t1,...
             'endTime',t2);
         
+    % Only fetch events that didn't occur within 1 hour of another event
+    gevents(1) = ev(end);
+    % Assumes that irisFetch gets events from most recent to least recent?
+    % Check this:
+    % if seconds(datetime(ev(2).PreferredTime) -
+    %            datetime(ev(1).PreferredTime)) > 0
+    k = 2;
+    for j = length(ev):-1:2
+        if hours(datetime(ev(j-1).PreferredTime)-...
+                 datetime(ev(j).PreferredTime)) > 1
+            gevents(k) = ev(j-1);
+            k = k + 1;
+        end
+    end
+    ev = gevents;
+        
     % Loop over each event, get the trace for the channel, and save
     for j = 1:length(ev)
         % Get start time of event
@@ -92,6 +109,8 @@ for i = 1:length(ch)
         end
     end
 end
+
+%% Test to work out date time logic
 
 % Options to add:
 % - RESP files? (saveRESP function)
