@@ -53,8 +53,8 @@ clear grf;
 %--------------------------------------------------------------------------
 
 % H-k stack parameters
-vp = 2.5:0.05:9.0;
-h = 5.0:0.5:70;
+vp = 2.5:0.05:7.0;
+h = 20.0:0.5:70;
 k = linspace(1.3,2.3,length(h));
 [H,K] = meshgrid(h,k);
 
@@ -137,7 +137,7 @@ ax2 = gca;
 s2.FontSize = 12;
 ax2.YDir = 'reverse';
 ax2.TickDir = 'out';
-ylim([5 70])
+ylim([20 70])
 title(sprintf('H = %0.2f km, $\\kappa$ = %0.2f',H(x,y),K(x,y)))
 
 sgtitle(sprintf('TA %s',stat))
