@@ -7,7 +7,7 @@
 % - a .mat file with the crustal thickness, Vp/Vs ratio, and station info
 %
 %--------------------------------------------------------------------------
-% Last updated 2/22/2021 by aburky@princeton.edu
+% Last updated 2/24/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -51,6 +51,9 @@ clear grf;
 %--------------------------------------------------------------------------
 % Compute the H-k stack
 %--------------------------------------------------------------------------
+
+% Change this: use the Crust1.0 Vp value nearest the station instead of
+% the searching through possible Vp values -> this is how EARS does things
 
 % H-k stack parameters
 vp = 2.5:0.05:7.0;
