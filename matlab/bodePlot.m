@@ -15,7 +15,7 @@ function bodePlot(file,fileType)
 if strcmp(fileType,'sacpz')
     [z,p,k] = parsePZ(file);
 elseif strcmp(fileType,'resp')
-    disp('RESP format still under development!')
+    [z,p,k] = parseRESP(file);
 else
     error(['Invalid fileType. Currently supported options are ',...
            '''sacpz'' or ''resp'''])
@@ -34,7 +34,7 @@ f = linspace(0,fs,nfreq);
 [h,w] = freqs(b,a,2*pi*f);
 
 % Amplitude response plot
-figure(1)
+figure
 subplot(1,2,1)
 loglog(f,abs(h),'r','linewidth',1)
 hold on
