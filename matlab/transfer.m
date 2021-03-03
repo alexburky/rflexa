@@ -1,10 +1,10 @@
-function [data] = transfer(data,delta,freqlimits,units,pzfile)
+function [data] = transfer(data,delta,freqlimits,units,file,fileType)
 % TRANSFER Remove the instrument response from a seismogram using the
 %          poles and zeros contained in an external SAC style Pole Zero
-%          file. Pre-filters the data with a cosine filter defined by
-%          freqlims, and outputs with user-specified units.
+%          file or RESP file. Pre-filters the data with a cosine filter 
+%          defined by freqlims, and outputs with user-specified units.
 %
-% >> [data] = transfer(data,delta,freqlimits,units,pzfile)
+% >> [data] = transfer(data,delta,freqlimits,units,file,fileType)
 % 
 %---Input Variables--------------------------------------------------------
 % data       - vector containing the input seismic data
@@ -13,14 +13,15 @@ function [data] = transfer(data,delta,freqlimits,units,pzfile)
 %              frequency. These frequencies specify the corners of a
 %              cosine filter applied to the data to stabilize deconvolution
 % units      - output units, 'displacement', 'velocity', or 'acceleration'
-% pzfile     - full path to the SAC_PZs file
+% file       - full path to the SAC_PZs or RESP file
+% fileType   - type of response file, either 'sacpz' or 'resp'
 %
 %---Output Variables-------------------------------------------------------
 % data       - vector containing the seismic data with the instrument
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 12/09/2020 by aburky@princeton.edu
+% Last updated 3/3/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % Do some input validation...
@@ -31,14 +32,21 @@ end
 
 fl = sort(freqlimits);
 
-if sum(strcmp(units,{'displacement','velocity','acceleration'})) == 0
+if sum(strcmp(units,{'displacement','velocity','acceleration','test','raspdisp'})) == 0
     error(['Incorrect output unit option.',newline,'Currently supported'...
           ' options are ''displacement'', ''velocity'', or '...
           '''acceleration''']);
 end
 
 % Get the poles, zeros, and constant
-[z,p,k] = parsePZ(pzfile);
+if strcmp(fileType,'sacpz')
+    [z,p,k] = parsePZ(file);
+elseif strcmp(fileType,'resp')
+    [z,p,k] = parseRESP(file);
+else
+    error(['Incorrect fileType. Currently supported options are ',...
+           '''sacpz'' or ''resp'''])
+end
 
 % Check if the user wants displacement, velocity, or acceleration
 z = nonzeros(z);
@@ -48,6 +56,10 @@ elseif strcmp(units,'velocity')
     z = [complex(0,0); complex(0,0); z];
 elseif strcmp(units,'acceleration')
     z = [complex(0,0); z];
+elseif strcmp(units,'test')
+    z = z;
+elseif strcmp(units,'raspdisp')
+    z = [complex(0,0); complex(0,0); complex(0,0); complex(0,0); z];
 end
 
 % FFT parameters
