@@ -7,8 +7,10 @@
 % - a .mat file with the crustal thickness, Vp/Vs ratio, and station info
 %
 %--------------------------------------------------------------------------
-% Last updated 3/01/2021 by aburky@princeton.edu
+% Last updated 3/03/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
+
+% To do: Add an option to specify whether or not to Phase Weight Stack...
 
 clear,clc
 
@@ -25,6 +27,12 @@ outDir = '/Users/aburky/IFILES/NETWORKS/TA_Analysis/hkStacks/';
 % Quality control parameters
 fit = 80;
 nu = 0.05;
+
+% Phase weight stack?
+pwstk = 'true';
+
+% Save the output?
+saveOutput = 'false';
 
 %--------------------------------------------------------------------------
 % Read in the receiver function data
@@ -68,7 +76,8 @@ PpSsW = 0.33333328;
 for i = 1:length(vp)
     for j = 1:length(rf)
         % Ray-parameter in (s/km)
-        P(j) = rf{j}.h.user(10)/deg2km(1);
+        % P(j) = rf{j}.h.user(10)/deg2km(1);
+        P(j) = rf{j}.h.user(10)/111.1949;
 
         % Theoretical times of Pds phases
         tPs{j} = H.*(sqrt(K.^2./vp(i)^2-P(j)^2) - sqrt(vp(i)^(-2)-P(j)^2));
@@ -83,12 +92,40 @@ for i = 1:length(vp)
         S{j} = PsW*rf{j}.d(round(tPs{j}/rf{j}.h.delta)) + ...
                PpPsW*rf{j}.d(round(tPpPs{j}/rf{j}.h.delta)) - ...
                PpSsW*rf{j}.d(round(tPpSs{j}/rf{j}.h.delta));
+           
+        % Optional: Phase Weight Stack
+        if strcmp(pwstk,'true')
+            Ps_pw = rf{j}.d(round(tPs{j}/rf{j}.h.delta)) + ...
+                1i*hilbert(rf{j}.d(round(tPs{j}/rf{j}.h.delta)));
+            PpPs_pw = rf{j}.d(round(tPpPs{j}/rf{j}.h.delta)) + ...
+                1i*hilbert(rf{j}.d(round(tPpPs{j}/rf{j}.h.delta)));
+            PpSs_pw = rf{j}.d(round(tPpSs{j}/rf{j}.h.delta)) + ...
+                1i*hilbert(rf{j}.d(round(tPpSs{j}/rf{j}.h.delta)));
+             
+            S_pw{j} = PsW*exp(1i*angle(Ps_pw)) + ...
+                PpPsW*exp(1i*angle(PpPs_pw)) - ...
+                PpSsW*exp(1i*angle(PpSs_pw));
+        end
+    end
+    
+    % Optional: Phase Weight Stack
+    if strcmp(pwstk,'true')
+        sS_pw{i} = 0;
+        for j = 1:length(rf)
+            sS_pw{i} = sS_pw{i} + S_pw{j};
+        end
+        sS_pw{i} = sS_pw{i}/length(rf);
     end
     
     % Stack!
     sS{i} = 0;
     for j = 1:length(rf)
-        sS{i} = sS{i} + S{j};
+        % Optional: Phase Weight Stack
+        if strcmp(pwstk,'true')
+            sS{i} = sS{i} + S{j}.*abs(sS_pw{i});
+        else
+            sS{i} = sS{i} + S{j};
+        end
     end
     sS{i} = sS{i}/length(rf);
     
@@ -103,8 +140,10 @@ end
 [x,y] = find(sS{idx} == max(max(sS{idx})));
 
 % Initialize the figure
-f = figure('visible','off');
-set(0,'DefaultFigureVisible','off');
+if strcmp(saveOutput,'true')
+    f = figure('visible','off');
+    set(0,'DefaultFigureVisible','off');
+end
 
 % Plot the maximum values of the H-k stack for each Vp value
 s1 = subplot(1,2,1);
@@ -145,26 +184,29 @@ title(sprintf('H = %0.2f km, $\\kappa$ = %0.2f',H(x,y),K(x,y)))
 
 sgtitle(sprintf('TA %s',stat))
 
-% Save the completed figure!
-fName = [stat,'_HkStack.png'];
-print(fullfile(outDir,fName),'-dpng','-r300');
+% Optional: Save the output data and figure
+if strcmp(saveOutput,'true')
+    % Save the completed figure!
+    fName = [stat,'_HkStack.png'];
+    print(fullfile(outDir,fName),'-dpng','-r300');
 
-% Save the .xyz data to a .xyz file
-fName = [stat,'_hk.xyz'];
-fid = fopen(fullfile(outDir,fName),'w');
-[I,J] = size(sS{idx});
-for i = 1:I
-    for j = 1:J
-        fprintf(fid,sprintf('%0.6f %0.6f %0.6f\n',...
-                K(j,i),H(j,i),sS{idx}(j,i)));
+    % Save the .xyz data to a .xyz file
+    fName = [stat,'_hk.xyz'];
+    fid = fopen(fullfile(outDir,fName),'w');
+    [I,J] = size(sS{idx});
+    for i = 1:I
+        for j = 1:J
+            fprintf(fid,sprintf('%0.6f %0.6f %0.6f\n',...
+                    K(j,i),H(j,i),sS{idx}(j,i)));
+        end
     end
-end
-fclose(fid);
+    fclose(fid);
 
-% Save the H, k, and Station metadata to a .mat file
-stla = rf{1}.h.stla;
-stlo = rf{1}.h.stlo;
-h = H(x,y);
-k = K(x,y);
-fName = [stat,'_HkData.mat'];
-save(fullfile(outDir,fName),'stla','stlo','h','k');
+    % Save the H, k, and Station metadata to a .mat file
+    stla = rf{1}.h.stla;
+    stlo = rf{1}.h.stlo;
+    h = H(x,y);
+    k = K(x,y);
+    fName = [stat,'_HkData.mat'];
+    save(fullfile(outDir,fName),'stla','stlo','h','k');
+end

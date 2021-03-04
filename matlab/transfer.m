@@ -32,7 +32,8 @@ end
 
 fl = sort(freqlimits);
 
-if sum(strcmp(units,{'displacement','velocity','acceleration','test','raspdisp'})) == 0
+if sum(strcmp(units,{'displacement','velocity','acceleration','test',...
+                     'raspdisp'})) == 0
     error(['Incorrect output unit option.',newline,'Currently supported'...
           ' options are ''displacement'', ''velocity'', or '...
           '''acceleration''']);
