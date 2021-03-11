@@ -7,7 +7,7 @@
 % - a .mat file with the crustal thickness, Vp/Vs ratio, and station info
 %
 %--------------------------------------------------------------------------
-% Last updated 3/10/2021 by aburky@princeton.edu
+% Last updated 3/11/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add an option to specify whether or not to Phase Weight Stack...
