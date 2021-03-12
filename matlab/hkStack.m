@@ -7,7 +7,7 @@
 % - a .mat file with the crustal thickness, Vp/Vs ratio, and station info
 %
 %--------------------------------------------------------------------------
-% Last updated 3/11/2021 by aburky@princeton.edu
+% Last updated 3/12/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add an option to specify whether or not to Phase Weight Stack...
@@ -64,9 +64,11 @@ clear grf;
 % the searching through possible Vp values -> this is how EARS does things
 
 % H-k stack parameters
-vp = 2.5:0.05:7.0;
+% vp = 2.5:0.05:7.0;
+vp = 5.738;
 h = 20.0:0.5:70;
-k = linspace(1.3,2.3,length(h));
+% EARS only searches 1.6 to 2.1 for k values
+k = linspace(1.6,2.1,length(h));
 [H,K] = meshgrid(h,k);
 
 PsW = 0.33333334;
