@@ -21,7 +21,7 @@ function [data] = transfer(data,delta,freqlimits,units,file,fileType)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 3/3/2021 by aburky@princeton.edu
+% Last updated 3/18/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % Do some input validation...
@@ -118,6 +118,3 @@ data_fft(nfft) = complex(sqrt(real(data_fft(nfft))*real(data_fft(nfft))...
 data = ifft(data_fft,nfft);
 
 data = data(1:npts);
-
-% Divide by 1e9 to get to meters
-% data = data/1e9;
