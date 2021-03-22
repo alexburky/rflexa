@@ -21,7 +21,7 @@ function [data] = transfer_evalresp(data,delta,freqlimits,amp,phase)
 %              response removed
 %
 %--------------------------------------------------------------------------
-% Last updated 3/18/2021 by aburky@princeton.edu
+% Last updated 3/22/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: maybe we can recast this program in a way that mimics SAC and
