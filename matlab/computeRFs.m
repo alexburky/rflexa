@@ -233,7 +233,7 @@ end
 % -------------------------------------------------------------------------
 
 % First, optionally filter data
-fc = [0.02 5];
+fc = [0.033 0.2];
 
 % Radial component
 for i = 1:length(rGood)
