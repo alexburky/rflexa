@@ -8,7 +8,7 @@
 % as well as some parameters controlling the resulting receiver functions
 
 %--------------------------------------------------------------------------
-% Last updated 2/16/2021 by aburky@princeton.edu
+% Last updated 4/11/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -20,13 +20,16 @@ tic
 % -------------------------------------------------------------------------
 
 % Location of seismic data
-dataDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFQUAKES_COUNTS/';
+% dataDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFQUAKES_COUNTS/';
+dataDir = '/Users/aburky/IFILES/NETWORKS/AF/SVMA/RFQUAKES/';
 
 % Network (for filename convention)
-network = 'TA';
+% network = 'TA';
+network = 'AF';
 
 % Directory where receiever functions will be saved
-rfDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFUNCS_VEL/';
+% rfDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFUNCS_VEL/';
+rfDir = '/Users/aburky/IFILES/NETWORKS/AF/SVMA/RFUNCS/';
 if ~exist(rfDir,'dir')
     mkdir(rfDir)
 elseif exist(rfDir,'dir') == 7
@@ -140,7 +143,8 @@ for i = 1:max(nFiles)
                 [sac{j}.tn,sac{j}.dn,sac{j}.hn] = fread_sac(fullfile(...
                     dataDir,traces(1).name));
                 sac{j}.nfile = traces(1).name;
-            elseif contains(traces(2).name,'BHN')
+            end
+            if contains(traces(2).name,'BHN')
                 [sac{j}.tn,sac{j}.dn,sac{j}.hn] = fread_sac(fullfile(...
                     dataDir,traces(2).name));
                 sac{j}.nfile = traces(2).name;
@@ -217,13 +221,15 @@ end
 k = 1;
 for i = 1:length(sac)
     % Make sure lengths of data vectors are equal before rotating
-    if isequal(length(sac{i}.dn),length(sac{i}.de))
+    if isequal(length(sac{i}.dn),length(sac{i}.de)) && ...
+            isequal(length(sac{i}.dn),length(sac{i}.dz))
         [sac{i}.dn,sac{i}.de] = seisne(sac{i}.dn,sac{i}.de,...
             sac{i}.hn.cmpaz);
         [sac{i}.dr,sac{i}.dt] = seisrt(sac{i}.dn,sac{i}.de,...
             sac{i}.hn.baz);
         rGood(k) = i;
         tGood(k) = i;
+        zGood(k) = i;
         k = k + 1;
     end
 end
@@ -269,13 +275,14 @@ for i = 1:length(rGood)
 end
 
 % Vertical component
-for i = 1:length(sac)
-    pidx = fix(sac{i}.hz.t(1)/sac{i}.hz.delta);
-    bidx = pidx - fix(cut_b/sac{i}.hz.delta);
-    eidx = pidx + fix(cut_e/sac{i}.hz.delta);
+for i = 1:length(zGood)
+    pidx = fix(sac{zGood(i)}.hz.t(1)/sac{zGood(i)}.hz.delta);
+    bidx = pidx - fix(cut_b/sac{zGood(i)}.hz.delta);
+    eidx = pidx + fix(cut_e/sac{zGood(i)}.hz.delta);
     
-    sac{i}.dzc = sac{i}.dz(bidx:eidx);
-    sac{i}.dzc = sac{i}.dzc.*tukeywin(length(sac{i}.dzc),taperw);
+    sac{zGood(i)}.dzc = sac{zGood(i)}.dz(bidx:eidx);
+    sac{zGood(i)}.dzc = sac{zGood(i)}.dzc.*...
+                        tukeywin(length(sac{zGood(i)}.dzc),taperw);
 end
 
 % -------------------------------------------------------------------------

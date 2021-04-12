@@ -7,18 +7,21 @@
 % to their corresponding poles and zeros data.
 %
 %--------------------------------------------------------------------------
-% Last updated 2/16/2021 by aburky@princeton.edu
+% Last updated 4/11/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
 
 % Define the directory where you would like to save the data
 % sacDir = '/Users/aburky/IFILES/NETWORKS/II/SACV/00/';
-sacDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFQUAKES_COUNTS/';
+sacDir = '/Users/aburky/IFILES/NETWORKS/AF/SVMA/';
+% sacDir = '/Users/aburky/IFILES/NETWORKS/TA/339A/NULL/RFQUAKES_COUNTS/';
 
 % Define the network/station that you would like to fetch data for
-network = 'TA';
-station = '339A';
+% network = 'TA';
+% station = '339A';
+network = 'AF';
+station = 'SVMA';
 location = '*';
 channel = 'BH*';
 
