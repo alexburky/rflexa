@@ -87,20 +87,22 @@ for i = 2:nfreq
 end
 
 % Apply the cosine filter (make this a function?)
-for i = 2:nfreq
-    freq = (i-1) * dfreq;
-    if freq < fl(1)
-        fac = 0.0;
-    elseif freq >= fl(1) && freq <= fl(2)
-        fac = 0.5 * (1 - cos(pi*(freq - fl(1)) / (fl(2) - fl(1))));
-    elseif freq >= fl(3) && freq <= fl(4)
-        fac = 0.5 * (1 + cos(pi*(freq - fl(3)) / (fl(4) - fl(3))));
-    elseif freq > fl(4)
-        fac = 0.0;
-    else
-        fac = 1.0;
+if sum(fl) ~= 0
+    for i = 2:nfreq
+        freq = (i-1) * dfreq;
+        if freq < fl(1)
+            fac = 0.0;
+        elseif freq >= fl(1) && freq <= fl(2)
+            fac = 0.5 * (1 - cos(pi*(freq - fl(1)) / (fl(2) - fl(1))));
+        elseif freq >= fl(3) && freq <= fl(4)
+            fac = 0.5 * (1 + cos(pi*(freq - fl(3)) / (fl(4) - fl(3))));
+        elseif freq > fl(4)
+            fac = 0.0;
+        else
+            fac = 1.0;
+        end
+        h(i) = h(i) * fac;
     end
-    h(i) = h(i) * fac;
 end
 
 % Take the Fourier transform of the data
