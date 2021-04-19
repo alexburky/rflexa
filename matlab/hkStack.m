@@ -7,7 +7,7 @@
 % - a .mat file with the crustal thickness, Vp/Vs ratio, and station info
 %
 %--------------------------------------------------------------------------
-% Last updated 4/17/2021 by aburky@princeton.edu
+% Last updated 4/19/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
