@@ -9,15 +9,15 @@
 % Inputs: Start and end coordinates of cross section?
 %
 %------------------------------------------------------------------
-% Last updated 4/28/2021 by aburky@princeton.edu
+% Last updated 4/30/2021 by aburky@princeton.edu
 %------------------------------------------------------------------
 
 clear,clc
 
 % Location of Depth Converted Stacks
 stackDir = ['/Users/aburky/IFILES/NETWORKS/TA_Analysis/',...
-            'Stacks/FILTERED_0.02_0.2/GW10/'];
-stacks = dir(fullfile(stackDir,'N*.mat'));
+            'Stacks/LLNL_3D/FILTERED_0.02_0.2/GW10/'];
+stacks = dir(fullfile(stackDir,'M*.mat'));
 
 % Location of station latitude abd longitude information
 metaDir = '/Users/aburky/GFILES/TA_Website';
@@ -35,9 +35,17 @@ for i = 1:length(stacks)
             rf{i}.lon = metaData(j,2).Var2;
         end
     end
-    rf{i}.d = stack;
-    rf{i}.evla = evla;
-    rf{i}.evlo = evlo;
+    % Option 1: 1D corrected data
+    % rf{i}.d = stack;
+    % rf{i}.evla = evla;
+    % rf{i}.evlo = evlo;
+    
+    % Option 2: 3D corrected data
+    rf{i}.d = mbstk;
+    rf{i}.evla = 30;
+    rf{i}.evlo = 30;
+    z = x;
+    
 end
 
 %% Create a volume from all of the stacks for slicing
