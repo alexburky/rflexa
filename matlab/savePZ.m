@@ -18,7 +18,7 @@ function savePZ(channel,sacpz,directory,varargin)
 %             corresponding SAC files
 %
 %--------------------------------------------------------------------------
-% Last updated 2/16/2021 by aburky@princeton.edu
+% Last updated 5/25/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 % To do: Add some error handling...
@@ -40,7 +40,7 @@ else
     pzFile = sprintf('SAC_PZs_%s_%s_%s_%s',channel.NetworkCode,...
              channel.StationCode,channel.ChannelCode,channel.LocationCode);
 end
-if nargin > 2
+if nargin > 3
     if strcmp(varargin{1},'pzindex')
         pzIndex = varargin{2};
         pzFile = sprintf('%s.%i',pzFile,pzIndex);
