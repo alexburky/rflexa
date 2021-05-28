@@ -16,7 +16,7 @@ function [rf_d] = rfDepcon(rf, dt, rayParam, dz, model, normalize)
 % rf_d      - Depth converted receiver function
 %
 %------------------------------------------------------------------
-% Last updated 6/02/2020 by aburky@princeton.edu
+% Last updated 5/27/2021 by aburky@princeton.edu
 %------------------------------------------------------------------
 
 % Check the input Earth model
@@ -126,8 +126,8 @@ else
 end
 
 % Remove 10 second time shift
-% shidx = round(10/dt);
-% rf = rf(shidx:end);
+shidx = round(10/dt);
+rf = rf(shidx:end);
 
 % Depth convert the data
 ttzm_r = round(ttzm/dt);
