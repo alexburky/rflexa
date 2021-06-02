@@ -7,7 +7,7 @@
 % a .mat file with the CCP stack
 %
 %--------------------------------------------------------------------------
-% Last updated 5/28/2021 by aburky@princeton.edu
+% Last updated 6/2/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -171,7 +171,7 @@ for i = 1:nCols
     for j = 1:nRows
         CCP(i,j,:) = zeros(8001,1);
         CCP(i,j,2851:5350) = ccp410{j,i}(2851:5350);
-        CCP(i,j,5351:7850) = ccp410{j,i}(2851:5350);
+        CCP(i,j,5351:7850) = ccp660{j,i}(2851:5350);
     end
 end
 
