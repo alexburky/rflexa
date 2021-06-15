@@ -11,7 +11,7 @@
 % - transfer
 %
 %--------------------------------------------------------------------------
-% Last updated 6/8/2021 by aburky@princeton.edu
+% Last updated 6/14/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -245,6 +245,9 @@ text(10.85,-1.5e-4,'(d)','FontSize',12)
 axes('Position',[0.705 0.77 0.21 0.156])
 box on
 plot(s{4}.t,s{4}.d,'Color',color{4})
+hold on
+scatter(19.011,1.039e-5,20,'Filled','MarkerFaceColor',color{4})
+text(18.55,4e-5,'6.011 s, 1.039e-5 m/s','FontSize',12)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -257,6 +260,9 @@ ax5.YTickLabel = {};
 axes('Position',[0.705 0.553 0.21 0.156])
 box on
 plot(s{1}.t,s{1}.d,'Color',color{1})
+hold on
+scatter(18.98,8.159e-6,20,'Filled','MarkerFaceColor',color{1})
+text(18.55,4e-5,'5.98 s, 8.159e-6 m/s','FontSize',12)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -269,6 +275,9 @@ ax6.YTickLabel = {};
 axes('Position',[0.705 0.336 0.21 0.156])
 box on
 plot(s{2}.t,s{2}.d,'Color',color{2})
+hold on
+scatter(18.98,8.236e-6,20,'Filled','MarkerFaceColor',color{2})
+text(18.55,4e-5,'5.98 s, 8.236e-6 m/s','FontSize',12)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -281,6 +290,9 @@ ax6.YTickLabel = {};
 axes('Position',[0.705 0.119 0.21 0.156])
 box on
 plot(s{3}.t,s{3}.d,'Color',color{3})
+hold on
+scatter(18.98,7.398e-6,20,'Filled','MarkerFaceColor',color{3})
+text(18.55,4e-5,'5.98 s, 7.398e-6 m/s','FontSize',12)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
