@@ -7,7 +7,7 @@
 % a .mat file with the CCP stack
 %
 %--------------------------------------------------------------------------
-% Last updated 6/17/2021 by aburky@princeton.edu
+% Last updated 6/18/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -24,7 +24,15 @@ pcDir{4} = ['/Users/aburky/IFILES/NETWORKS/TA_Analysis/piercePoints/',...
 
 % Path to receiver function data        
 rfDir = '/Users/aburky/IFILES/NETWORKS/TA/';
-rfDet = '/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/';        
+
+% Velocity model to use
+vModel = 'LLNL';
+
+if strcmp(vModel,'iasp91')
+    rfDet = '/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/';
+elseif strcmp(vModel,'LLNL')
+    rfDet = '/NULL/RFUNCS_VEL/FILTERED_0.02_0.2/GW10/LLNL3D/';
+end
         
 %--------------------------------------------------------------------------
 % Load all piercing point data
@@ -98,26 +106,41 @@ for i = 1:nRows
         
         % Read in all of the receiver functions in this bin
         rf = {};
-        ccp410{i,j} = zeros(8001,1);
-        fprintf('[%i %i] N = %i\n',i,j,length(idx))
+        if strcmp(vModel,'iasp91')
+            ccp410{i,j} = zeros(8001,1);
+        elseif strcmp(vModel,'LLNL')
+            ccp410{i,j} = zeros(1,7501);
+        end
+        % fprintf('[%i %i] N = %i\n',i,j,length(idx))
         for k = 1:length(idx)
             rfData = file{3}{idx(k)};
             tmp = strsplit(rfData,'TA.');
             stat = extractBefore(tmp{2},'.');
             
-            % Read in a receiver function
-            rfPath = fullfile(rfDir,stat,rfDet,rfData);
-            [rf{k}.t,rf{k}.d,rf{k}.h] = fread_sac(rfPath);
-            
-            % Get depth conversion data
-            P = rf{k}.h.user(10)/deg2km(1);
-            dt = rf{k}.h.delta;
-            
-            % Depth convert the receiver function
-            rf{k}.dep = rfDepcon(rf{k}.d,dt,P,dz,'iasp91','true');
-            
-            % Add the depth converted receiver function to the stack
-            ccp410{i,j} = ccp410{i,j} + rf{k}.dep;
+            if strcmp(vModel,'iasp91')
+                % Read in a receiver function
+                rfPath = fullfile(rfDir,stat,rfDet,rfData);
+                [rf{k}.t,rf{k}.d,rf{k}.h] = fread_sac(rfPath);
+
+                % Get depth conversion data
+                P = rf{k}.h.user(10)/deg2km(1);
+                dt = rf{k}.h.delta;
+
+                % Depth convert the receiver function
+                rf{k}.dep = rfDepcon(rf{k}.d,dt,P,dz,'iasp91','true');
+
+                % Add the depth converted receiver function to the stack
+                ccp410{i,j} = ccp410{i,j} + rf{k}.dep;
+            elseif strcmp(vModel,'LLNL')
+                % Path to stacked LLNL data
+                rfData = [extractBefore(rfData,'SAC'),'LLNL3D.mat'];
+                
+                % Read in the stacked receiver function
+                rfPath = fullfile(rfDir,stat,rfDet,rfData);
+                load(rfPath);
+                
+                ccp410{i,j} = ccp410{i,j} + rfDepth(1:7501);
+            end
             
         end
         
@@ -138,26 +161,43 @@ for i = 1:nRows
         
         % Read in all of the receiver functions in this bin
         rf = {};
-        ccp660{i,j} = zeros(8001,1);
-        fprintf('[%i %i] N = %i\n',i,j,length(idx))
+        if strcmp(vModel,'iasp91')
+            ccp660{i,j} = zeros(8001,1);
+        elseif strcmp(vModel,'LLNL')
+            ccp660{i,j} = zeros(1,7501);
+        end
+        % fprintf('[%i %i] N = %i\n',i,j,length(idx))
         for k = 1:length(idx)
             rfData = file{4}{idx(k)};
             tmp = strsplit(rfData,'TA.');
             stat = extractBefore(tmp{2},'.');
             
-            % Read in a receiver function
-            rfPath = fullfile(rfDir,stat,rfDet,rfData);
-            [rf{k}.t,rf{k}.d,rf{k}.h] = fread_sac(rfPath);
-            
-            % Get depth conversion data
-            P = rf{k}.h.user(10)/deg2km(1);
-            dt = rf{k}.h.delta;
-            
-            % Depth convert the receiver function
-            rf{k}.dep = rfDepcon(rf{k}.d,dt,P,dz,'iasp91','true');
-            
-            % Add the depth converted receiver function to the stack
-            ccp660{i,j} = ccp660{i,j} + rf{k}.dep;
+            if strcmp(vModel,'iasp91')
+                % Read in a receiver function
+                rfPath = fullfile(rfDir,stat,rfDet,rfData);
+                [rf{k}.t,rf{k}.d,rf{k}.h] = fread_sac(rfPath);
+
+                % Get depth conversion data
+                P = rf{k}.h.user(10)/deg2km(1);
+                dt = rf{k}.h.delta;
+
+                % Depth convert the receiver function
+                rf{k}.dep = rfDepcon(rf{k}.d,dt,P,dz,'iasp91','true');
+
+                % Add the depth converted receiver function to the stack
+                ccp660{i,j} = ccp660{i,j} + rf{k}.dep;
+                
+            elseif strcmp(vModel,'LLNL')
+                % Path to stacked LLNL data
+                rfData = [extractBefore(rfData,'SAC'),'LLNL3D.mat'];
+                
+                % Read in the stacked receiver function
+                rfPath = fullfile(rfDir,stat,rfDet,rfData);
+                load(rfPath);
+                
+                ccp660{i,j} = ccp660{i,j} + rfDepth(1:7501);
+                
+            end
             
         end
         
@@ -169,9 +209,13 @@ end
 % Stitch together the 410 and 660 portions
 for i = 1:nCols
     for j = 1:nRows
-        CCP(i,j,:) = zeros(8001,1);
+        if strcmp(vModel,'iasp91')
+            CCP(i,j,:) = zeros(8001,1);
+        elseif strcmp(vModel,'LLNL')
+            CCP(i,j,:) = zeros(1,7501);
+        end
         CCP(i,j,2851:5350) = ccp410{j,i}(2851:5350);
-        CCP(i,j,5351:7850) = ccp660{j,i}(2851:5350);
+        CCP(i,j,5351:7850) = ccp660{j,i}(5351:7850);
     end
 end
 
