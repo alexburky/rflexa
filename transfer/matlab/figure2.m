@@ -63,13 +63,16 @@ ax1 = gca;
 ax1.TickDir = 'out';
 grid on
 ax1.YTick = [-6e4 -3e4 0 3e4 6e4];
-ax1.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+% ax1.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+ax1.YTickLabel = {'$-6 \times 10^{4}$','$-3 \times 10^{4}$','0',...
+    '$3 \times 10^{4}$','$6 \times 10^{4}$'};
 ax1.XTick = 10:2.5:60;
 ax1.XTickLabel = {''};
 ylabel('Counts')
-text(4,-5.75e4,'\textbf{R36A4.00.EHZ}','Rotation',90)
+text(1,-5.75e4,'\textbf{R36A4.00.EHZ}','Rotation',90)
 rectangle('Position',[10.6 -6.5e4 2.15 2.75e4],'FaceColor',[1 1 1])
 text(10.85,-5.25e4,'(a)','FontSize',12)
+ax1.Position(1) = 0.16;
 
 % Station S0001 Data
 subplot(4,1,2)
@@ -80,13 +83,16 @@ ax2 = gca;
 ax2.TickDir = 'out';
 grid on
 ax2.YTick = [-6e4 -3e4 0 3e4 6e4];
-ax2.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+% ax2.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+ax2.YTickLabel = {'$-6 \times 10^{4}$','$-3 \times 10^{4}$','0',...
+    '$3 \times 10^{4}$','$6 \times 10^{4}$'};
 ax2.XTick = 10:2.5:60;
 ax2.XTickLabel = {''};
 ylabel('Counts')
-text(4,-5.5e4,'\textbf{S0001.00.HHZ}','Rotation',90)
+text(1,-5.5e4,'\textbf{S0001.00.HHZ}','Rotation',90)
 rectangle('Position',[10.6 -6.5e4 2.15 2.75e4],'FaceColor',[1 1 1])
 text(10.85,-5.25e4,'(b)','FontSize',12)
+ax2.Position(1) = 0.16;
 
 % Station S0002 Data
 subplot(4,1,3)
@@ -97,13 +103,16 @@ ax3 = gca;
 ax3.TickDir = 'out';
 grid on
 ax3.YTick = [-6e4 -3e4 0 3e4 6e4];
-ax3.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+% ax3.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+ax3.YTickLabel = {'$-6 \times 10^{4}$','$-3 \times 10^{4}$','0',...
+    '$3 \times 10^{4}$','$6 \times 10^{4}$'};
 ax3.XTick = 10:2.5:60;
 ax3.XTickLabel = {''};
 ylabel('Counts')
-text(4,-5.5e4,'\textbf{S0002.00.HHZ}','Rotation',90)
+text(1,-5.5e4,'\textbf{S0002.00.HHZ}','Rotation',90)
 rectangle('Position',[10.6 -6.5e4 2.15 2.75e4],'FaceColor',[1 1 1])
 text(10.85,-5.25e4,'(c)','FontSize',12)
+ax3.Position(1) = 0.16;
 
 % Accelerometer Data
 subplot(4,1,4)
@@ -114,7 +123,9 @@ ax4 = gca;
 ax4.TickDir = 'out';
 grid on
 ax4.YTick = [-6e4 -3e4 0 3e4 6e4];
-ax4.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+% ax4.YTickLabel = {'-6e4','-3e4','0','3e4','6e4'};
+ax4.YTickLabel = {'$-6 \times 10^{4}$','$-3 \times 10^{4}$','0',...
+    '$3 \times 10^{4}$','$6 \times 10^{4}$'};
 ax4.XTick = 10:2.5:60;
 ax4.XTickLabel = {'','','06:00:15','','','','06:00:25','','','',...
                   '06:00:35','','','','06:00:45','','','','06:00:55',...
@@ -122,12 +133,13 @@ ax4.XTickLabel = {'','','06:00:15','','','','06:00:25','','','',...
 
 xlabel('Time (UTC)')
 ylabel('Counts')
-text(4,-5.5e4,'\textbf{S0002.10.HNZ}','Rotation',90)
+text(1,-5.5e4,'\textbf{S0002.10.HNZ}','Rotation',90)
 rectangle('Position',[10.6 -6.5e4 2.15 2.75e4],'FaceColor',[1 1 1])
 text(10.85,-5.25e4,'(d)','FontSize',12)
+ax4.Position(1) = 0.16;
 
 % Inset Map
-axes('Position',[0.525 0.11 0.38 0.3765])
+axes('Position',[0.555 0.11 0.38 0.3765])
 box on
 ax6 = gca;
 ax6.XLim = [0 1];
@@ -137,7 +149,7 @@ ax6.YTick = [];
 rectangle('Position',[0.025 0.025 0.1 0.1],'FaceColor',[1 1 1])
 text(0.04,0.07,'(e)','FontSize',12)
 
-axes('Position',[0.595 0.1865 0.3 0.275])
+axes('Position',[0.625 0.1865 0.3 0.275])
 geoshow('usastatehi.shp','FaceColor',[0.15 0.5 0.15])
 hold on
 geoshow(40.3460,-74.655,'DisplayType','Point','Marker','^',...
