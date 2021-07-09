@@ -11,7 +11,7 @@
 % - transfer
 %
 %--------------------------------------------------------------------------
-% Last updated 6/14/2021 by aburky@princeton.edu
+% Last updated 7/9/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -98,6 +98,17 @@ color{2} = [0 0.9 1];
 color{3} = [0 0 0];
 color{4} = [0.89 0.043 0.365];
 
+ylims = [-2e-4, -1e-4, 0, 1e-4, 2e-4];
+[rdx,ex] = radexp(ylims);
+ytl = cell(size(ylims));
+for i = 1:length(ylims)
+    if rdx(i) == 0
+        ytl{i} = '0';
+    else
+        ytl{i} = sprintf('$%i{\\times}10^{%i}$',rdx(i),ex(i));
+    end
+end
+
 % Raspberry Shake Data
 subplot(4,1,1)
 plot(s{4}.t,s{4}.d,'Color',color{4})
@@ -117,10 +128,12 @@ if strcmp(units,'displacement')
 % Velocity
 elseif strcmp(units,'velocity')
     ylim([-2e-4 2e-4])
-    ax1.YTick = [-2e-4, -1e-4, 0, 1e-4, 2e-4];
-    ax1.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
+    ax1.YTick = ylims;
+    ax1.YTickLabel = ytl;
     ylabel('Velocity (m/s)')
-    text(3.5,-1.6e-4,'\textbf{R36A4.00.EHZ}','Rotation',90)
+    % text(3.5,-1.6e-4,'\textbf{R36A4.00.EHZ}','Rotation',90)
+    text(1.5,-1.6e-4,'\textbf{R36A4.00.EHZ}','Rotation',90)
+    ax1.Position(1) = 0.15;
 % Acceleration
 elseif strcmp(units,'acceleration')
     ylim([-0.02 0.02])
@@ -132,6 +145,10 @@ end
 rectangle('Position',[18.5 -0.5e-4 1.5 1e-4])
 rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
 text(10.85,-1.5e-4,'(a)','FontSize',12)
+
+title('2020-09-09 06:00:13 $M_{b}$ = 3.1 Marlboro, New Jersey Earthquake')
+ax1.Title.FontSize = 15.0;
+ax1.Title.Position(2) = 2.25e-4;
 
 % S0001 Data
 subplot(4,1,2)
@@ -152,10 +169,12 @@ if strcmp(units,'displacement')
 % Velocity
 elseif strcmp(units,'velocity')
     ylim([-2e-4 2e-4])
-    ax2.YTick = [-2e-4, -1e-4, 0, 1e-4, 2e-4];
-    ax2.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
+    ax2.YTick = ylims;
+    ax2.YTickLabel = ytl;
     ylabel('Velocity (m/s)')
-    text(3.5,-1.6e-4,'\textbf{S0001.00.HHZ}','Rotation',90)
+    ylabel('Velocity (m/s)')
+    text(1.5,-1.6e-4,'\textbf{S0001.00.HHZ}','Rotation',90)
+    ax2.Position(1) = 0.15;
 % Acceleration
 elseif strcmp(units,'acceleration')
     ylim([-0.02 0.02])
@@ -187,10 +206,11 @@ if strcmp(units,'displacement')
 % Velocity
 elseif strcmp(units,'velocity')
     ylim([-2e-4 2e-4])
-    ax3.YTick = [-2e-4, -1e-4, 0, 1e-4, 2e-4];
-    ax3.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
+    ax3.YTick = ylims;
+    ax3.YTickLabel = ytl;
     ylabel('Velocity (m/s)')
-    text(3.5,-1.6e-4,'\textbf{S0002.00.HHZ}','Rotation',90)
+    text(1.5,-1.6e-4,'\textbf{S0002.00.HHZ}','Rotation',90)
+    ax3.Position(1) = 0.15;
 % Acceleration
 elseif strcmp(units,'acceleration')
     ylim([-0.02 0.02])
@@ -225,10 +245,11 @@ if strcmp(units,'displacement')
 % Velocity
 elseif strcmp(units,'velocity')
     ylim([-2e-4 2e-4])
-    ax4.YTick = [-2e-4, -1e-4, 0, 1e-4, 2e-4];
-    ax4.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
+    ax4.YTick = ylims;
+    ax4.YTickLabel = ytl; 
     ylabel('Velocity (m/s)')
-    text(3.5,-1.6e-4,'\textbf{S0002.10.HNZ}','Rotation',90)
+    text(1.5,-1.6e-4,'\textbf{S0002.10.HNZ}','Rotation',90)
+    ax4.Position(1) = 0.15;
 % Acceleration
 elseif strcmp(units,'acceleration')
     ylim([-0.02 0.02])
@@ -242,12 +263,12 @@ rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
 text(10.85,-1.5e-4,'(d)','FontSize',12)
 
 % Make an inset showing a zoomed in section
-axes('Position',[0.705 0.77 0.21 0.156])
+axes('Position',[0.735 0.773 0.21 0.156])
 box on
 plot(s{4}.t,s{4}.d,'Color',color{4})
 hold on
 scatter(19.011,1.039e-5,20,'Filled','MarkerFaceColor',color{4})
-text(18.55,4e-5,'6.011 s, 1.039e-5 m/s','FontSize',12)
+text(18.55,4e-5,'6.011 s, $1.039{\times}10^{-5}$ m/s','FontSize',11)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -257,12 +278,12 @@ ax5.YTick = [];
 ax5.XTickLabel = {};
 ax5.YTickLabel = {};
 
-axes('Position',[0.705 0.553 0.21 0.156])
+axes('Position',[0.735 0.553 0.21 0.156])
 box on
 plot(s{1}.t,s{1}.d,'Color',color{1})
 hold on
 scatter(18.98,8.159e-6,20,'Filled','MarkerFaceColor',color{1})
-text(18.55,4e-5,'5.98 s, 8.159e-6 m/s','FontSize',12)
+text(18.55,4e-5,'5.98 s, $8.159{\times}10^{-6}$ m/s','FontSize',11)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -272,12 +293,12 @@ ax6.YTick = [];
 ax6.XTickLabel = {};
 ax6.YTickLabel = {};
 
-axes('Position',[0.705 0.336 0.21 0.156])
+axes('Position',[0.735 0.334 0.21 0.156])
 box on
 plot(s{2}.t,s{2}.d,'Color',color{2})
 hold on
 scatter(18.98,8.236e-6,20,'Filled','MarkerFaceColor',color{2})
-text(18.55,4e-5,'5.98 s, 8.236e-6 m/s','FontSize',12)
+text(18.55,4e-5,'5.98 s, $8.236{\times}10^{-6}$ m/s','FontSize',11)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -287,12 +308,12 @@ ax6.YTick = [];
 ax6.XTickLabel = {};
 ax6.YTickLabel = {};
 
-axes('Position',[0.705 0.119 0.21 0.156])
+axes('Position',[0.735 0.114 0.21 0.156])
 box on
 plot(s{3}.t,s{3}.d,'Color',color{3})
 hold on
 scatter(18.98,7.398e-6,20,'Filled','MarkerFaceColor',color{3})
-text(18.55,4e-5,'5.98 s, 7.398e-6 m/s','FontSize',12)
+text(18.55,4e-5,'5.98 s, $7.398{\times}10^{-6}$ m/s','FontSize',11)
 grid on
 xlim([18.5 20])
 ylim([-0.5e-4 0.5e-4])
@@ -302,7 +323,10 @@ ax6.YTick = [];
 ax6.XTickLabel = {};
 ax6.YTickLabel = {};
 
+% Print the figure to a PDF and open it with Preview
 set(gcf,'Position',[0 0 600 600])
-sgtitle(['2020-09-09 06:00:13 $M_{b}$ = 3.1 Marlboro, ',...
-    'New Jersey Earthquake'])
+print(gcf,'-dpdf','-r600','Figure3');
+close;
+
+system('open Figure3.pdf &');
 
