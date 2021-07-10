@@ -12,7 +12,7 @@
 % - transfer_evalresp
 %
 %--------------------------------------------------------------------------
-% Last updated 6/8/2021 by aburky@princeton.edu
+% Last updated 7/9/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -94,11 +94,14 @@ ax1.XTickLabel = {};
 ax1.XTick = 10:2.5:60;
 ax1.YTick = [-2e-4 -1e-4 0 1e-4 2e-4];
 % ax1.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
-ax1.YTickLabel = {'$-2 \times 10^{-4}$','$-1 \times 10^{-4}$','0',...
-        '$1 \times 10^{-4}$','$2 \times 10^{-4}$'};
+ax1.YTickLabel = {'$-2{\times}10^{-4}$','$-1{\times}10^{-4}$','0',...
+        '$1{\times}10^{-4}$','$2{\times}10^{-4}$'};
 rectangle('Position',[10.6 -1.85e-4 2.15 1.35e-4],'FaceColor',[1 1 1])
 text(10.85,-1.2e-4,'(a)','FontSize',12)
-ax1.Position(1) = 0.16;
+ax1.Position(1) = 0.15;
+title('rflexa \texttt{transfer} vs. SAC \texttt{transfer}')
+ax1.Title.FontSize = 15.0;
+ax1.Title.Position(2) = 2.25e-4;
 
 % Subplot 2: SACPZ Difference
 subplot(4,1,2)
@@ -113,13 +116,13 @@ ax2.XTickLabel = {};
 ax2.XTick = 10:2.5:60;
 ax2.YTick = [-8e-11 -4e-11 0 4e-11 8e-11];
 % ax2.YTickLabel = {'-8e-11','-4e-11','0','4e-11','8e-11'};
-ax2.YTickLabel = {'$-8 \times 10^{-11}$','$-4 \times 10^{-11}$','0',...
-        '$4 \times 10^{-11}$','$8 \times 10^{-11}$'};
+ax2.YTickLabel = {'$-8{\times}10^{-11}$','$-4{\times}10^{-11}$','0',...
+        '$4{\times}10^{-11}$','$8{\times}10^{-11}$'};
 ylabel('Velocity (m/s)')
 ax2.YLabel.Position(2) = -1.2e-10;
 rectangle('Position',[10.6 -7e-11 2.15 6e-11],'FaceColor',[1 1 1])
 text(10.85,-4.25e-11,'(b)','FontSize',12)
-ax2.Position(1) = 0.16;
+ax2.Position(1) = 0.15;
 
 % Subplot 3: EVALRESP Records
 subplot(4,1,3)
@@ -137,11 +140,11 @@ ax3.XTickLabel = {};
 ax3.XTick = 10:2.5:60;
 ax3.YTick = [-2e-4 -1e-4 0 1e-4 2e-4];
 % ax3.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
-ax3.YTickLabel = {'$-2 \times 10^{-4}$','$-1 \times 10^{-4}$','0',...
-        '$1 \times 10^{-4}$','$2 \times 10^{-4}$'};
+ax3.YTickLabel = {'$-2{\times}10^{-4}$','$-1{\times}10^{-4}$','0',...
+        '$1{\times}10^{-4}$','$2{\times}10^{-4}$'};
 rectangle('Position',[10.6 -1.85e-4 2.15 1.35e-4],'FaceColor',[1 1 1])
 text(10.85,-1.2e-4,'(c)','FontSize',12)
-ax3.Position(1) = 0.16;
+ax3.Position(1) = 0.15;
 
 % Subplot 4: EVALRESP Difference
 subplot(4,1,4)
@@ -154,8 +157,8 @@ ax4 = gca;
 ax4.TickDir = 'out';
 ax4.YTick = [-8e-12 -4e-12 0 4e-12 8e-12];
 % ax4.YTickLabel = {'-8e-12','-4e-12','0','4e-12','8e-12'};
-ax4.YTickLabel = {'$-8 \times 10^{-12}$','$-4 \times 10^{-12}$','0',...
-        '$4 \times 10^{-12}$','$8 \times 10^{-12}$'};
+ax4.YTickLabel = {'$-8{\times}10^{-12}$','$-4{\times}10^{-12}$','0',...
+        '$4{\times}10^{-12}$','$8{\times}10^{-12}$'};
 ax4.XTick = 10:2.5:60;
 ax4.XTickLabel = {'','','06:00:15','','','','06:00:25','','','',...
                   '06:00:35','','','','06:00:45','','','','06:00:55',...
@@ -163,9 +166,12 @@ ax4.XTickLabel = {'','','06:00:15','','','','06:00:25','','','',...
 xlabel('Time (UTC)')
 rectangle('Position',[10.6 -7e-12 2.15 6e-12],'FaceColor',[1 1 1])
 text(10.85,-4.5e-12,'(d)','FontSize',12)
-ax4.Position(1) = 0.16;
+ax4.Position(1) = 0.15;
 
 % Final figure formatting
 set(gcf,'Position',[0 0 600 300]);
-tit = sgtitle('rflexa \texttt{transfer} vs. SAC \texttt{transfer}');
+print(gcf,'-dpdf','-r600','Figure4');
+close;
+
+system('open Figure4.pdf &');
 
