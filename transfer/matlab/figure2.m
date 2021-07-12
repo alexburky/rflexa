@@ -10,7 +10,7 @@
 % - parsePZ
 %
 %--------------------------------------------------------------------------
-% Last updated 7/7/2021 by aburky@princeton.edu
+% Last updated 7/9/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
@@ -84,7 +84,7 @@ text(2.5,-5.75e4,'\textbf{R36A4.00.EHZ}','Rotation',90)
 rectangle('Position',[10.6 -6.5e4 2.15 2.75e4],'FaceColor',[1 1 1])
 text(10.85,-5.25e4,'(a)','FontSize',12)
 ax1.Position(1) = 0.14;
-title('2020-09-09 06:00:13 $M_{b}$ = 3.1 Marlboro New Jersey Earthquake')
+title('2020-09-09 06:00:13 $M_{Lg}$ = 3.1 Marlboro New Jersey Earthquake')
 ax1.Title.FontSize = 15.0;
 ax1.Title.Position(2) = 77500;
 
