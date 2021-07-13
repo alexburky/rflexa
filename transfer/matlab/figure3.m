@@ -146,7 +146,7 @@ rectangle('Position',[18.5 -0.5e-4 1.5 1e-4])
 rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
 text(10.85,-1.5e-4,'(a)','FontSize',12)
 
-title('2020-09-09 06:00:13 $M_{b}$ = 3.1 Marlboro, New Jersey Earthquake')
+title('2020-09-09 06:00:13 $M_{Lg}$ = 3.1 Marlboro, New Jersey Earthquake')
 ax1.Title.FontSize = 15.0;
 ax1.Title.Position(2) = 2.25e-4;
 
