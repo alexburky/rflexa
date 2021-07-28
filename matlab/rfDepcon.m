@@ -126,8 +126,8 @@ else
 end
 
 % Remove 10 second time shift
-shidx = round(10/dt);
-rf = rf(shidx:end);
+% shidx = round(10/dt);
+% rf = rf(shidx:end);
 
 % Depth convert the data
 ttzm_r = round(ttzm/dt);
