@@ -37,8 +37,13 @@ end
 fl = sort(freqlimits);
 
 % Read in the transfer function output by EVALRESP
-resp.a = readmatrix(fullfile(amp),'FileType','text');
-resp.p = readmatrix(fullfile(phase),'FileType','text');
+try
+  resp.a = readmatrix(fullfile(amp),'FileType','text');
+  resp.p = readmatrix(fullfile(phase),'FileType','text');
+catch
+  resp.a = load(deblank(fullfile(amp)));
+  resp.p = load(deblank(fullfile(phase)));
+end
 
 resp.f = resp.a(:,1);
 resp.a = resp.a(:,2);
