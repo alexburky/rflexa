@@ -4,7 +4,7 @@
 % a focus on the mantle transition zone. It is assumed that the data are
 % structured in a specific directory structure, and that the paths to
 % relevant piercing point data are specified. The output of this script is
-% a .mat file with the CCP stack
+% a .mat file with the CCP stack.
 %
 %--------------------------------------------------------------------------
 % Last updated 8/16/2021 by aburky@princeton.edu
