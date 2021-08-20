@@ -3,7 +3,7 @@ import numpy as np
 # This file contains functions relevant to the removal of the instrument response from seismic data
 
 # ---------------------------------------------------------
-# Last updated 6/8/2021 by aburky@princeton.edu
+# Last updated 8/20/2021 by aburky@princeton.edu
 # ---------------------------------------------------------
 
 
