@@ -16,6 +16,9 @@
 
 clear,clc
 
+% Option: display boxes with figure labels (a,b,c,etc.)
+boxOn = false;
+
 % Specify the locations of the seismic data (traces)
 sacDir = '../data/traces/';
 data{1} = 'PP.S0001.00.HHZ.D.2020.253.060000.SAC';
@@ -143,10 +146,12 @@ elseif strcmp(units,'acceleration')
     text(4,-0.016,'\textbf{R36A4.00.EHZ}','Rotation',90)
 end
 rectangle('Position',[18.5 -0.5e-4 1.5 1e-4])
-rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
-text(10.85,-1.5e-4,'(a)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
+    text(10.85,-1.5e-4,'(a)','FontSize',12)
+    title('2020-09-09 06:00:13 $M_{Lg}$ = 3.1 Marlboro, New Jersey Earthquake')
+end
 
-title('2020-09-09 06:00:13 $M_{Lg}$ = 3.1 Marlboro, New Jersey Earthquake')
 ax1.Title.FontSize = 15.0;
 ax1.Title.Position(2) = 2.25e-4;
 
@@ -184,8 +189,10 @@ elseif strcmp(units,'acceleration')
     text(4,-0.015,'\textbf{S0001.00.HHZ}','Rotation',90)
 end
 rectangle('Position',[18.5 -0.5e-4 1.5 1e-4])
-rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
-text(10.85,-1.5e-4,'(b)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
+    text(10.85,-1.5e-4,'(b)','FontSize',12)
+end
 
 % S0002 Data
 subplot(4,1,3)
@@ -220,8 +227,10 @@ elseif strcmp(units,'acceleration')
     text(4,-0.015,'\textbf{S0002.00.HHZ}','Rotation',90)
 end
 rectangle('Position',[18.5 -0.5e-4 1.5 1e-4])
-rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
-text(10.85,-1.5e-4,'(c)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
+    text(10.85,-1.5e-4,'(c)','FontSize',12)
+end
 
 % S0002 Data (Accelerometer)
 subplot(4,1,4)
@@ -234,7 +243,6 @@ ax4.XTick = 10:2.5:60;
 ax4.XTickLabel = {'','','06:00:15','','','','06:00:25','','','',...
                   '06:00:35','','','','06:00:45','','','','06:00:55',...
                   '',''};
-xlabel('Time (UTC)')
 % Displacement
 if strcmp(units,'displacement')
     ylim([-7e-6 7e-6])
@@ -259,8 +267,11 @@ elseif strcmp(units,'acceleration')
     text(4,-0.015,'\textbf{S0002.10.HNZ}','Rotation',90)
 end
 rectangle('Position',[18.5 -0.5e-4 1.5 1e-4])
-rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
-text(10.85,-1.5e-4,'(d)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -1.85e-4 2.15 0.75e-4],'FaceColor',[1 1 1])
+    text(10.85,-1.5e-4,'(d)','FontSize',12)
+    xlabel('Time (UTC)')
+end
 
 % Make an inset showing a zoomed in section
 axes('Position',[0.735 0.773 0.21 0.156])

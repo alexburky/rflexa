@@ -9,10 +9,13 @@
 % - parsePZ
 %
 %--------------------------------------------------------------------------
-% Last updated 6/8/2021 by aburky@princeton.edu
+% Last updated 10/13/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
+
+% Option: display boxes with figure labels (a,b,c,etc.)
+boxOn = false;
 
 % Specify the locations of the response files
 respDir = '../data/responses/';
@@ -35,6 +38,7 @@ fs = 100;
 nyq = fs/2;
 
 % Prepare the frequency grid for Bode plot (this takes a few seconds...)
+% npts = 1000;
 npts = 10000000;
 nfft = 2^nextpow2(npts);
 nfreq = (nfft / 2) + 1;
@@ -95,7 +99,11 @@ color{3} = [0 0 0];
 color{4} = [0.89 0.043 0.365];
 
 % Displacement
-subplot(3,2,1)
+if boxOn == true
+    subplot(3,2,1)
+else
+    subplot(2,3,1)
+end
 loglog(f,abs(h{4}),'Color',color{4},'linewidth',1)
 hold on
 loglog(f,abs(h{1}),'Color',color{1},'linewidth',1)
@@ -114,12 +122,20 @@ ax.XTick = [1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2];
 ax.XMinorGrid = 'off';
 ax.YMinorGrid = 'off';
 ylabel('Gain (Counts / m)')
-text(5e1,1e13,'Displacement','FontSize',14)
-rectangle('Position',[0.85e-4,0.8e6,2.7e-4,3.5e6],'FaceColor',[1 1 1])
-text(1e-4,1.8e6,'(a)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[0.85e-4,0.8e6,2.7e-4,3.5e6],'FaceColor',[1 1 1])
+    text(1e-4,1.8e6,'(a)','FontSize',12)
+    text(5e1,1e13,'Displacement','FontSize',14)
+else
+    title('Displacement')
+end
 legend('R36A4.00.EHZ','S0001.00.HHZ','S0002.00.HHZ','S0002.10.HNZ','Location','NorthWest')
 
-subplot(3,2,2)
+if boxOn == true
+    subplot(3,2,2)
+else
+    subplot(2,3,4)
+end
 semilogx(f,((180/pi)*angle(h{1})),'Color',color{1},'linewidth',1)
 hold on
 semilogx(f,((180/pi)*angle(h{2})),'Color',color{2},'linewidth',1,...
@@ -138,11 +154,19 @@ ax.XTick = [1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2];
 ax.XMinorGrid = 'off';
 ax.YMinorGrid = 'off';
 ylabel('Phase ($^{\circ}$)')
-rectangle('Position',[0.85e-4,-175,2.7e-4,45],'FaceColor',[1 1 1])
-text(1e-4,-155,'(b)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[0.85e-4,-175,2.7e-4,45],'FaceColor',[1 1 1])
+    text(1e-4,-155,'(b)','FontSize',12)
+else
+    xlabel('Frequency (Hz)')
+end
 
 % Velocity
-subplot(3,2,3)
+if boxOn == true
+    subplot(3,2,3)
+else
+    subplot(2,3,2)
+end
 loglog(f,abs(h{5}),'Color',color{1},'linewidth',1)
 hold on
 loglog(f,abs(h{6}),'Color',color{2},'linewidth',1,'LineStyle','--')
@@ -152,7 +176,6 @@ plot([nyq nyq],[1e0 1e10],'k--')
 xlim([5e-5 fs])
 ylim([5e3 3e9])
 grid on
-ylabel('Gain (Counts / m/s)')
 ax = gca;
 ax.FontSize = 12;
 ax.TickDir = 'out';
@@ -160,11 +183,20 @@ ax.YTick = [1e4, 1e5, 1e6, 1e7, 1e8 ,1e9];
 ax.XTick = [1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2];
 ax.XMinorGrid = 'off';
 ax.YMinorGrid = 'off';
-text(1.5e2,2e10,'Velocity','FontSize',14)
-rectangle('Position',[0.85e-4,0.8e4,2.7e-4,3.5e4],'FaceColor',[1 1 1])
-text(1e-4,1.8e4,'(c)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[0.85e-4,0.8e4,2.7e-4,3.5e4],'FaceColor',[1 1 1])
+    text(1e-4,1.8e4,'(c)','FontSize',12)
+    text(1.5e2,2e10,'Velocity','FontSize',14)
+    ylabel('Gain (Counts / m/s)')
+else
+    title('Velocity')
+end
 
-subplot(3,2,4)
+if boxOn == true
+    subplot(3,2,4)
+else
+    subplot(2,3,5)
+end
 semilogx(f,((180/pi)*angle(h{5})),'Color',color{1},'linewidth',1)
 hold on
 semilogx(f,((180/pi)*angle(h{6})),'Color',color{2},'linewidth',1,...
@@ -175,7 +207,6 @@ plot([nyq nyq],[-200 200],'k--')
 xlim([5e-5 fs])
 ylim([-190 190])
 grid on
-ylabel('Phase ($^{\circ}$)')
 ax = gca;
 ax.FontSize = 12;
 ax.TickDir = 'out';
@@ -183,11 +214,20 @@ ax.YTick = [-180, -135, -90, -45, 0, 45, 90, 135, 180];
 ax.XTick = [1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2];
 ax.XMinorGrid = 'off';
 ax.YMinorGrid = 'off';
-rectangle('Position',[0.85e-4,-175,2.7e-4,45],'FaceColor',[1 1 1])
-text(1e-4,-155,'(d)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[0.85e-4,-175,2.7e-4,45],'FaceColor',[1 1 1])
+    text(1e-4,-155,'(d)','FontSize',12)
+    ylabel('Phase ($^{\circ}$)')
+else
+    xlabel('Frequency (Hz)')
+end
 
 % Acceleration
-subplot(3,2,5)
+if boxOn == true
+    subplot(3,2,5)
+else
+    subplot(2,3,3)
+end
 loglog(f,abs(h{9}),'Color',color{1},'linewidth',1)
 hold on
 loglog(f,abs(h{10}),'Color',color{2},'linewidth',1,'LineStyle','--')
@@ -204,13 +244,21 @@ ax.YTick = [1e4, 1e5, 1e6, 1e7, 1e8 ,1e9];
 ax.XTick = [1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2];
 ax.XMinorGrid = 'off';
 ax.YMinorGrid = 'off';
-xlabel('Frequency (Hz)')
-ylabel('Gain (Counts / (m/s$^{2}$))')
-text(0.65e2,6e10,'Acceleration','FontSize',14)
-rectangle('Position',[0.85e-4,0.8e4,2.7e-4,3.5e4],'FaceColor',[1 1 1])
-text(1e-4,1.8e4,'(e)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[0.85e-4,0.8e4,2.7e-4,3.5e4],'FaceColor',[1 1 1])
+    text(1e-4,1.8e4,'(e)','FontSize',12)
+    text(0.65e2,6e10,'Acceleration','FontSize',14)
+    xlabel('Frequency (Hz)')
+    ylabel('Gain (Counts / (m/s$^{2}$))')
+else
+    title('Acceleration')
+end
 
-subplot(3,2,6)
+if boxOn == true
+    subplot(3,2,6)
+else
+    subplot(2,3,6)
+end
 semilogx(f,((180/pi)*angle(h{9})),'Color',color{1},'linewidth',1)
 hold on
 semilogx(f,((180/pi)*angle(h{10})),'Color',color{2},'linewidth',1,...
@@ -229,9 +277,15 @@ ax.XTick = [1e-4,1e-3,1e-2,1e-1,1e0,1e1,1e2];
 ax.XMinorGrid = 'off';
 ax.YMinorGrid = 'off';
 xlabel('Frequency (Hz)')
-ylabel('Phase ($^{\circ}$)')
-rectangle('Position',[0.85e-4,-175,2.7e-4,45],'FaceColor',[1 1 1])
-text(1e-4,-155,'(f)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[0.85e-4,-175,2.7e-4,45],'FaceColor',[1 1 1])
+    text(1e-4,-155,'(f)','FontSize',12)
+    ylabel('Phase ($^{\circ}$)')
+end
 
-set(gcf,'Position',[0 0 600 750])
+if boxOn == true
+    set(gcf,'Position',[0 0 600 750])
+else
+    set(gcf,'Position',[0 0 880 475])
+end
 
