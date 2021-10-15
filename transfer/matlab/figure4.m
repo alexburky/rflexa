@@ -12,10 +12,13 @@
 % - transfer_evalresp
 %
 %--------------------------------------------------------------------------
-% Last updated 7/9/2021 by aburky@princeton.edu
+% Last updated 10/14/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
+
+% Option: display boxes with figure labels (a,b,c,etc.)
+boxOn = false;
 
 % Specify the locations of the seismic data (traces)
 sacDir = '../data/traces/';
@@ -96,8 +99,10 @@ ax1.YTick = [-2e-4 -1e-4 0 1e-4 2e-4];
 % ax1.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
 ax1.YTickLabel = {'$-2{\times}10^{-4}$','$-1{\times}10^{-4}$','0',...
         '$1{\times}10^{-4}$','$2{\times}10^{-4}$'};
-rectangle('Position',[10.6 -1.85e-4 2.15 1.35e-4],'FaceColor',[1 1 1])
-text(10.85,-1.2e-4,'(a)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -1.85e-4 2.15 1.35e-4],'FaceColor',[1 1 1])
+    text(10.85,-1.2e-4,'(a)','FontSize',12)
+end
 ax1.Position(1) = 0.15;
 title('rflexa \texttt{transfer} vs. SAC \texttt{transfer}')
 ax1.Title.FontSize = 15.0;
@@ -120,8 +125,10 @@ ax2.YTickLabel = {'$-8{\times}10^{-11}$','$-4{\times}10^{-11}$','0',...
         '$4{\times}10^{-11}$','$8{\times}10^{-11}$'};
 ylabel('Velocity (m/s)')
 ax2.YLabel.Position(2) = -1.2e-10;
-rectangle('Position',[10.6 -7e-11 2.15 6e-11],'FaceColor',[1 1 1])
-text(10.85,-4.25e-11,'(b)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -7e-11 2.15 6e-11],'FaceColor',[1 1 1])
+    text(10.85,-4.25e-11,'(b)','FontSize',12)
+end
 ax2.Position(1) = 0.15;
 
 % Subplot 3: EVALRESP Records
@@ -142,8 +149,10 @@ ax3.YTick = [-2e-4 -1e-4 0 1e-4 2e-4];
 % ax3.YTickLabel = {'-2e-4','-1e-4','0','1e-4','2e-4'};
 ax3.YTickLabel = {'$-2{\times}10^{-4}$','$-1{\times}10^{-4}$','0',...
         '$1{\times}10^{-4}$','$2{\times}10^{-4}$'};
-rectangle('Position',[10.6 -1.85e-4 2.15 1.35e-4],'FaceColor',[1 1 1])
-text(10.85,-1.2e-4,'(c)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -1.85e-4 2.15 1.35e-4],'FaceColor',[1 1 1])
+    text(10.85,-1.2e-4,'(c)','FontSize',12)
+end
 ax3.Position(1) = 0.15;
 
 % Subplot 4: EVALRESP Difference
@@ -164,8 +173,10 @@ ax4.XTickLabel = {'','','06:00:15','','','','06:00:25','','','',...
                   '06:00:35','','','','06:00:45','','','','06:00:55',...
                   '',''};
 xlabel('Time (UTC)')
-rectangle('Position',[10.6 -7e-12 2.15 6e-12],'FaceColor',[1 1 1])
-text(10.85,-4.5e-12,'(d)','FontSize',12)
+if boxOn == true
+    rectangle('Position',[10.6 -7e-12 2.15 6e-12],'FaceColor',[1 1 1])
+    text(10.85,-4.5e-12,'(d)','FontSize',12)
+end
 ax4.Position(1) = 0.15;
 
 % Final figure formatting
