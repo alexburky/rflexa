@@ -48,6 +48,7 @@ if strcmp(fileType,'sacpz')
     % Determine appropriate axis limits
     ymax = max(abs(h)) + 10*max(abs(h));
     [~,idx] = min(abs(abs(h)-5e3));
+    xmin = 5e-6;
     
 elseif strcmp(fileType,'resp')
     amp = dlmread(varargin{1});
