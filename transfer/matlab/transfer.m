@@ -73,7 +73,10 @@ nyq = (1/delta)*0.5;
 % Construct the transfer function from the poles and zeros
 f = linspace(0,nyq,nfreq);
 [b,a] = zp2tf(z,p,k);
-[h,w] = freqs(b,a,2*pi*f);
+% [h,w] = freqs(b,a,2*pi*f);
+w = 2*pi*f;
+s = 1j*w;
+h = polyval(b,s)./polyval(a,s);
 
 % Invert the transfer function
 for i = 2:nfreq
