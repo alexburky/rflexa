@@ -21,7 +21,8 @@ function bodePlot(file,fileType,units,varargin)
 %--------------------------------------------------------------------------
 
 % Sample rate (get this from the data)
-fs = 40;
+% fs = 40;
+fs = 20;
 nyq = fs/2;
 
 if strcmp(fileType,'sacpz')
@@ -35,6 +36,8 @@ if strcmp(fileType,'sacpz')
         z = [complex(0,0); complex(0,0); z];
     elseif strcmp(units,'acceleration')
         z = [complex(0,0); z];
+    elseif strcmp(units,'mermaid')
+        z = [complex(0,0); z];
     end
 
     npts = 10000000;
@@ -43,7 +46,10 @@ if strcmp(fileType,'sacpz')
     f = linspace(0,fs,nfreq);
 
     [b,a] = zp2tf(z,p,k);
-    [h,w] = freqs(b,a,2*pi*f);
+    % [h,w] = freqs(b,a,2*pi*f);
+    w = 2*pi*f;
+    s = 1j*w;
+    h = polyval(b,s)./polyval(a,s);
     
     % Determine appropriate axis limits
     ymax = max(abs(h)) + 10*max(abs(h));
@@ -74,6 +80,8 @@ elseif strcmp(units,'velocity')
     ystring = 'Gain (Counts / m/s)';
 elseif strcmp(units,'acceleration')
     ystring = 'Gain (Counts / m/s$^2$)';
+elseif strcmp(units,'mermaid')
+    ystring = 'Gain (Counts / Pa)';
 end
 
 % Amplitude response plot

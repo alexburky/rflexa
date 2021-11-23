@@ -33,7 +33,7 @@ end
 fl = sort(freqlimits);
 
 if sum(strcmp(units,{'displacement','velocity','acceleration','test',...
-                     'raspdisp'})) == 0
+                     'raspdisp','mermaid'})) == 0
     error(['Incorrect output unit option.',newline,'Currently supported'...
           ' options are ''displacement'', ''velocity'', or '...
           '''acceleration''']);
@@ -56,6 +56,8 @@ if strcmp(units,'displacement')
 elseif strcmp(units,'velocity')
     z = [complex(0,0); complex(0,0); z];
 elseif strcmp(units,'acceleration')
+    z = [complex(0,0); z];
+elseif strcmp(units,'mermaid')
     z = [complex(0,0); z];
 elseif strcmp(units,'test')
     z = z;
