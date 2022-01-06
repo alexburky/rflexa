@@ -7,7 +7,7 @@
 % a .mat file with the CCP stack.
 %
 %--------------------------------------------------------------------------
-% Last updated 12/22/2021 by aburky@princeton.edu
+% Last updated 1/6/2021 by aburky@princeton.edu
 %--------------------------------------------------------------------------
 
 clear,clc
