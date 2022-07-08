@@ -48,7 +48,7 @@ while ~feof(fileID)
         npidx = npidx + 1;
     end
 end
-fclose(fileID)
+fclose(fileID);
 
 nzeros = max(nz);
 npoles = max(np);
@@ -77,7 +77,7 @@ while ~feof(fileID)
         sens = str2double(sn{3});
     end
 end
-fclose(fileID)
+fclose(fileID);
 
 % Zeros, poles, and constant
 z = z(1:nzeros);
