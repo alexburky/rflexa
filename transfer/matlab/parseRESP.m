@@ -14,6 +14,7 @@ function [z,p,k] = parseRESP(respFile)
 % 
 %--------------------------------------------------------------------------
 % Last updated 3/2/2021 by aburky@princeton.edu
+% Last modified 7/8/2022 by fjsimons-alum.mit.edu
 %--------------------------------------------------------------------------
 
 % Find lines delimiting zeros, poles, and constant entries
@@ -47,6 +48,7 @@ while ~feof(fileID)
         npidx = npidx + 1;
     end
 end
+fclose(fileID)
 
 nzeros = max(nz);
 npoles = max(np);
@@ -75,6 +77,7 @@ while ~feof(fileID)
         sens = str2double(sn{3});
     end
 end
+fclose(fileID)
 
 % Zeros, poles, and constant
 z = z(1:nzeros);
